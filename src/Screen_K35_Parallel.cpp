@@ -265,26 +265,69 @@ void Screen_K35_Parallel::_writeData88(uint8_t dataHigh8, uint8_t dataLow8)
     *out4 &= ~BV(1);             // digitalWrite(_pinScreenChipSelect, LOW);
     *out2 &= ~BV(7);             // digitalWrite(_pinScreenWR, LOW);
 
-    (dataHigh8   & 0x01) ? *out3 |= BV(4) : *out3 &= ~BV(4);
+    // Clear the bits first, then only set bits if needed
+    *out3 &= ~0x1f;
+    *out1 &= ~0x20;
+    *out2 &= ~0x01;
+    *out6 &= ~0x20;
+
+// Don't need clear bit logic, since taken care of above.
+    if (dataHigh8   & 0x01)  *out3 |= BV(4) ;
+    if ((dataHigh8) & 0x02)  *out3 |= BV(3) ;
+    if ((dataHigh8) & 0x04)  *out2 |= BV(0) ;
+    if ((dataHigh8) & 0x08)  *out1 |= BV(5) ;
+    if ((dataHigh8) & 0x10)  *out3 |= BV(2) ;
+    if ((dataHigh8) & 0x20)  *out6 |= BV(5) ;
+    if ((dataHigh8) & 0x40)  *out3 |= BV(1) ;
+    if ((dataHigh8) & 0x80)  *out3 |= BV(0) ;
+
+/*    (dataHigh8   & 0x01) ? *out3 |= BV(4) : *out3 &= ~BV(4);
     ((dataHigh8) & 0x02) ? *out3 |= BV(3) : *out3 &= ~BV(3);
     ((dataHigh8) & 0x04) ? *out2 |= BV(0) : *out2 &= ~BV(0);
     ((dataHigh8) & 0x08) ? *out1 |= BV(5) : *out1 &= ~BV(5);
     ((dataHigh8) & 0x10) ? *out3 |= BV(2) : *out3 &= ~BV(2);
     ((dataHigh8) & 0x20) ? *out6 |= BV(5) : *out6 &= ~BV(5);
     ((dataHigh8) & 0x40) ? *out3 |= BV(1) : *out3 &= ~BV(1);
-    ((dataHigh8) & 0x80) ? *out3 |= BV(0) : *out3 &= ~BV(0);
+    ((dataHigh8) & 0x80) ? *out3 |= BV(0) : *out3 &= ~BV(0); */
+
+/*    This method slightly slower (1s -> 1.1s), probably because of bit shifts
+    *out3 |= (dataHigh8 & 0x01) << 4;
+    *out3 |= (dataHigh8 & 0x02) << 2;
+    *out2 |= (dataHigh8 & 0x04) >> 2;
+    *out1 |= (dataHigh8 & 0x08) << 2;
+    *out3 |= (dataHigh8 & 0x10) >> 2;
+    *out6 |= (dataHigh8 & 0x20);
+    *out3 |= (dataHigh8 & 0x40) >> 5;
+    *out3 |= (dataHigh8 & 0x80) >> 7;
+    */
 
     *out2 |=  BV(7);             // digitalWrite(_pinScreenWR, HIGH);
     *out2 &= ~BV(7);             // digitalWrite(_pinScreenWR, LOW);
 
-    (dataLow8   & 0x01) ? *out3 |= BV(4) : *out3 &= ~BV(4);
+    // Clear the bits first, then only set bits if needed
+    *out3 &= ~0x1f;
+    *out1 &= ~0x20;
+    *out2 &= ~0x01;
+    *out6 &= ~0x20;
+
+    // Don't need clear bit logic, since taken care of above.
+    if (dataLow8   & 0x01)  *out3 |= BV(4) ;
+    if ((dataLow8) & 0x02)  *out3 |= BV(3) ;
+    if ((dataLow8) & 0x04)  *out2 |= BV(0) ;
+    if ((dataLow8) & 0x08)  *out1 |= BV(5) ;
+    if ((dataLow8) & 0x10)  *out3 |= BV(2) ;
+    if ((dataLow8) & 0x20)  *out6 |= BV(5) ;
+    if ((dataLow8) & 0x40)  *out3 |= BV(1) ;
+    if ((dataLow8) & 0x80)  *out3 |= BV(0) ;
+
+/*    (dataLow8   & 0x01) ? *out3 |= BV(4) : *out3 &= ~BV(4);
     ((dataLow8) & 0x02) ? *out3 |= BV(3) : *out3 &= ~BV(3);
     ((dataLow8) & 0x04) ? *out2 |= BV(0) : *out2 &= ~BV(0);
     ((dataLow8) & 0x08) ? *out1 |= BV(5) : *out1 &= ~BV(5);
     ((dataLow8) & 0x10) ? *out3 |= BV(2) : *out3 &= ~BV(2);
     ((dataLow8) & 0x20) ? *out6 |= BV(5) : *out6 &= ~BV(5);
     ((dataLow8) & 0x40) ? *out3 |= BV(1) : *out3 &= ~BV(1);
-    ((dataLow8) & 0x80) ? *out3 |= BV(0) : *out3 &= ~BV(0);
+    ((dataLow8) & 0x80) ? *out3 |= BV(0) : *out3 &= ~BV(0); */
 
     *out2 |=  BV(7);             // digitalWrite(_pinScreenWR, HIGH);
     *out4 |=  BV(1);             // digitalWrite(_pinScreenChipSelect, HIGH);
@@ -332,14 +375,30 @@ void Screen_K35_Parallel::_writeCommand16(uint16_t command16)
     *out4 &= ~BV(1);             // digitalWrite(_pinScreenChipSelect, LOW);
     *out2 &= ~BV(7);             // digitalWrite(_pinScreenWR, LOW);
 
-    (command16   & 0x01) ? *out3 |= BV(4) : *out3 &= ~BV(4);
+    // Clear the bits first, then only set bits if needed
+    *out3 &= ~0x1f;
+    *out1 &= ~0x20;
+    *out2 &= ~0x01;
+    *out6 &= ~0x20;
+
+    // Don't need clear bit logic, since taken care of above.
+    if (command16   & 0x01)  *out3 |= BV(4) ;
+    if ((command16) & 0x02)  *out3 |= BV(3) ;
+    if ((command16) & 0x04)  *out2 |= BV(0) ;
+    if ((command16) & 0x08)  *out1 |= BV(5) ;
+    if ((command16) & 0x10)  *out3 |= BV(2) ;
+    if ((command16) & 0x20)  *out6 |= BV(5) ;
+    if ((command16) & 0x40)  *out3 |= BV(1) ;
+    if ((command16) & 0x80)  *out3 |= BV(0) ;
+
+/*    (command16   & 0x01) ? *out3 |= BV(4) : *out3 &= ~BV(4);
     ((command16) & 0x02) ? *out3 |= BV(3) : *out3 &= ~BV(3);
     ((command16) & 0x04) ? *out2 |= BV(0) : *out2 &= ~BV(0);
     ((command16) & 0x08) ? *out1 |= BV(5) : *out1 &= ~BV(5);
     ((command16) & 0x10) ? *out3 |= BV(2) : *out3 &= ~BV(2);
     ((command16) & 0x20) ? *out6 |= BV(5) : *out6 &= ~BV(5);
     ((command16) & 0x40) ? *out3 |= BV(1) : *out3 &= ~BV(1);
-    ((command16) & 0x80) ? *out3 |= BV(0) : *out3 &= ~BV(0);
+    ((command16) & 0x80) ? *out3 |= BV(0) : *out3 &= ~BV(0); */
 
     *out2 |=  BV(7);             // digitalWrite(_pinScreenWR, HIGH);
     *out4 |=  BV(1);             // digitalWrite(_pinScreenChipSelect, HIGH);
@@ -370,14 +429,30 @@ void Screen_K35_Parallel::_writeCommandAndData16(uint16_t command16, uint8_t dat
     *out4 &= ~BV(1);             // digitalWrite(_pinScreenChipSelect, LOW);
     *out2 &= ~BV(7);             // digitalWrite(_pinScreenWR, LOW);
 
-    (command16   & 0x01) ? *out3 |= BV(4) : *out3 &= ~BV(4);
+    // Clear the bits first, then only set bits if needed
+    *out3 &= ~0x1f;
+    *out1 &= ~0x20;
+    *out2 &= ~0x01;
+    *out6 &= ~0x20;
+
+    // Don't need clear bit logic, since taken care of above.
+    if (command16   & 0x01)  *out3 |= BV(4) ;
+    if ((command16) & 0x02)  *out3 |= BV(3) ;
+    if ((command16) & 0x04)  *out2 |= BV(0) ;
+    if ((command16) & 0x08)  *out1 |= BV(5) ;
+    if ((command16) & 0x10)  *out3 |= BV(2) ;
+    if ((command16) & 0x20)  *out6 |= BV(5) ;
+    if ((command16) & 0x40)  *out3 |= BV(1) ;
+    if ((command16) & 0x80)  *out3 |= BV(0) ;
+
+/*    (command16   & 0x01) ? *out3 |= BV(4) : *out3 &= ~BV(4);
     ((command16) & 0x02) ? *out3 |= BV(3) : *out3 &= ~BV(3);
     ((command16) & 0x04) ? *out2 |= BV(0) : *out2 &= ~BV(0);
     ((command16) & 0x08) ? *out1 |= BV(5) : *out1 &= ~BV(5);
     ((command16) & 0x10) ? *out3 |= BV(2) : *out3 &= ~BV(2);
     ((command16) & 0x20) ? *out6 |= BV(5) : *out6 &= ~BV(5);
     ((command16) & 0x40) ? *out3 |= BV(1) : *out3 &= ~BV(1);
-    ((command16) & 0x80) ? *out3 |= BV(0) : *out3 &= ~BV(0);
+    ((command16) & 0x80) ? *out3 |= BV(0) : *out3 &= ~BV(0); */
 
     *out2 |=  BV(7);             // digitalWrite(_pinScreenWR, HIGH);
     *out4 |=  BV(1);             // digitalWrite(_pinScreenChipSelect, HIGH);
@@ -404,26 +479,58 @@ void Screen_K35_Parallel::_writeCommandAndData16(uint16_t command16, uint8_t dat
     *out4 &= ~BV(1);             // digitalWrite(_pinScreenChipSelect, LOW);
     *out2 &= ~BV(7);             // digitalWrite(_pinScreenWR, LOW);
 
-    (dataHigh8   & 0x01) ? *out3 |= BV(4) : *out3 &= ~BV(4);
+    // Clear the bits first, then only set bits if needed
+    *out3 &= ~0x1f;
+    *out1 &= ~0x20;
+    *out2 &= ~0x01;
+    *out6 &= ~0x20;
+
+    // Don't need clear bit logic, since taken care of above.
+    if (dataHigh8   & 0x01)  *out3 |= BV(4) ;
+    if ((dataHigh8) & 0x02)  *out3 |= BV(3) ;
+    if ((dataHigh8) & 0x04)  *out2 |= BV(0) ;
+    if ((dataHigh8) & 0x08)  *out1 |= BV(5) ;
+    if ((dataHigh8) & 0x10)  *out3 |= BV(2) ;
+    if ((dataHigh8) & 0x20)  *out6 |= BV(5) ;
+    if ((dataHigh8) & 0x40)  *out3 |= BV(1) ;
+    if ((dataHigh8) & 0x80)  *out3 |= BV(0) ;
+
+/*    (dataHigh8   & 0x01) ? *out3 |= BV(4) : *out3 &= ~BV(4);
     ((dataHigh8) & 0x02) ? *out3 |= BV(3) : *out3 &= ~BV(3);
     ((dataHigh8) & 0x04) ? *out2 |= BV(0) : *out2 &= ~BV(0);
     ((dataHigh8) & 0x08) ? *out1 |= BV(5) : *out1 &= ~BV(5);
     ((dataHigh8) & 0x10) ? *out3 |= BV(2) : *out3 &= ~BV(2);
     ((dataHigh8) & 0x20) ? *out6 |= BV(5) : *out6 &= ~BV(5);
     ((dataHigh8) & 0x40) ? *out3 |= BV(1) : *out3 &= ~BV(1);
-    ((dataHigh8) & 0x80) ? *out3 |= BV(0) : *out3 &= ~BV(0);
+    ((dataHigh8) & 0x80) ? *out3 |= BV(0) : *out3 &= ~BV(0); */
 
     *out2 |=  BV(7);             // digitalWrite(_pinScreenWR, HIGH);
     *out2 &= ~BV(7);             // digitalWrite(_pinScreenWR, LOW);
 
-    (dataLow8   & 0x01) ? *out3 |= BV(4) : *out3 &= ~BV(4);
+    // Clear the bits first, then only set bits if needed
+    *out3 &= ~0x1f;
+    *out1 &= ~0x20;
+    *out2 &= ~0x01;
+    *out6 &= ~0x20;
+
+    // Don't need clear bit logic, since taken care of above.
+    if (dataLow8   & 0x01)  *out3 |= BV(4) ;
+    if ((dataLow8) & 0x02)  *out3 |= BV(3) ;
+    if ((dataLow8) & 0x04)  *out2 |= BV(0) ;
+    if ((dataLow8) & 0x08)  *out1 |= BV(5) ;
+    if ((dataLow8) & 0x10)  *out3 |= BV(2) ;
+    if ((dataLow8) & 0x20)  *out6 |= BV(5) ;
+    if ((dataLow8) & 0x40)  *out3 |= BV(1) ;
+    if ((dataLow8) & 0x80)  *out3 |= BV(0) ;
+
+/*    (dataLow8   & 0x01) ? *out3 |= BV(4) : *out3 &= ~BV(4);
     ((dataLow8) & 0x02) ? *out3 |= BV(3) : *out3 &= ~BV(3);
     ((dataLow8) & 0x04) ? *out2 |= BV(0) : *out2 &= ~BV(0);
     ((dataLow8) & 0x08) ? *out1 |= BV(5) : *out1 &= ~BV(5);
     ((dataLow8) & 0x10) ? *out3 |= BV(2) : *out3 &= ~BV(2);
     ((dataLow8) & 0x20) ? *out6 |= BV(5) : *out6 &= ~BV(5);
     ((dataLow8) & 0x40) ? *out3 |= BV(1) : *out3 &= ~BV(1);
-    ((dataLow8) & 0x80) ? *out3 |= BV(0) : *out3 &= ~BV(0);
+    ((dataLow8) & 0x80) ? *out3 |= BV(0) : *out3 &= ~BV(0); */
 
     *out2 |=  BV(7);             // digitalWrite(_pinScreenWR, HIGH);
     *out4 |=  BV(1);             // digitalWrite(_pinScreenChipSelect, HIGH);
