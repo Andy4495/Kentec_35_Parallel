@@ -62,6 +62,10 @@
 #define GPIO_FAST 1         // GPIO_FAST is not supported by this library
 #define GPIO_MODE GPIO_SLOW
 
+#if defined(__MSP430F5529__)  // Use direct port access with F5529
+#define F5529_DIRECT_IO
+#endif
+
 // Touch is not supported by this library
 
 // Code
@@ -81,6 +85,13 @@ Screen_K35_Parallel::Screen_K35_Parallel()
     _pinScreenD5          =  2;
     _pinScreenD6          = 14;
     _pinScreenD7          = 15;
+#ifdef F5529_DIRECT_IO
+    out3 = (volatile uint8_t *)(P3_BASE+OFS_P3OUT);
+    out2 = (volatile uint8_t *)(P2_BASE+OFS_P2OUT);
+    out1 = (volatile uint8_t *)(P1_BASE+OFS_P1OUT);
+    out6 = (volatile uint8_t *)(P6_BASE+OFS_P6OUT);
+    out4 = (volatile uint8_t *)(P4_BASE+OFS_P4OUT);
+#endif
 }
 
 void Screen_K35_Parallel::begin()
@@ -249,11 +260,39 @@ void Screen_K35_Parallel::_writeData16(uint16_t data16)
 
 void Screen_K35_Parallel::_writeData88(uint8_t dataHigh8, uint8_t dataLow8)
 {
+#ifdef F5529_DIRECT_IO
+    *out4 |=  BV(2);             // digitalWrite(_pinScreenDataCommand, HIGH)
+    *out4 &= ~BV(1);             // digitalWrite(_pinScreenChipSelect, LOW);
+    *out2 &= ~BV(7);             // digitalWrite(_pinScreenWR, LOW);
+
+    (dataHigh8   & 0x01) ? *out3 |= BV(4) : *out3 &= ~BV(4);
+    ((dataHigh8) & 0x02) ? *out3 |= BV(3) : *out3 &= ~BV(3);
+    ((dataHigh8) & 0x04) ? *out2 |= BV(0) : *out2 &= ~BV(0);
+    ((dataHigh8) & 0x08) ? *out1 |= BV(5) : *out1 &= ~BV(5);
+    ((dataHigh8) & 0x10) ? *out3 |= BV(2) : *out3 &= ~BV(2);
+    ((dataHigh8) & 0x20) ? *out6 |= BV(5) : *out6 &= ~BV(5);
+    ((dataHigh8) & 0x40) ? *out3 |= BV(1) : *out3 &= ~BV(1);
+    ((dataHigh8) & 0x80) ? *out3 |= BV(0) : *out3 &= ~BV(0);
+
+    *out2 |=  BV(7);             // digitalWrite(_pinScreenWR, HIGH);
+    *out2 &= ~BV(7);             // digitalWrite(_pinScreenWR, LOW);
+
+    (dataLow8   & 0x01) ? *out3 |= BV(4) : *out3 &= ~BV(4);
+    ((dataLow8) & 0x02) ? *out3 |= BV(3) : *out3 &= ~BV(3);
+    ((dataLow8) & 0x04) ? *out2 |= BV(0) : *out2 &= ~BV(0);
+    ((dataLow8) & 0x08) ? *out1 |= BV(5) : *out1 &= ~BV(5);
+    ((dataLow8) & 0x10) ? *out3 |= BV(2) : *out3 &= ~BV(2);
+    ((dataLow8) & 0x20) ? *out6 |= BV(5) : *out6 &= ~BV(5);
+    ((dataLow8) & 0x40) ? *out3 |= BV(1) : *out3 &= ~BV(1);
+    ((dataLow8) & 0x80) ? *out3 |= BV(0) : *out3 &= ~BV(0);
+
+    *out2 |=  BV(7);             // digitalWrite(_pinScreenWR, HIGH);
+    *out4 |=  BV(1);             // digitalWrite(_pinScreenChipSelect, HIGH);
+#else
     digitalWrite(_pinScreenDataCommand, HIGH);                                  // HIGH = data
     digitalWrite(_pinScreenChipSelect, LOW);
     digitalWrite(_pinScreenWR, LOW);
 
-    // Set output pins to data value - MSB
     digitalWrite(_pinScreenD0,     dataHigh8  & 0x01);
     digitalWrite(_pinScreenD1, (dataHigh8>>1) & 0x01);
     digitalWrite(_pinScreenD2, (dataHigh8>>2) & 0x01);
@@ -265,7 +304,6 @@ void Screen_K35_Parallel::_writeData88(uint8_t dataHigh8, uint8_t dataLow8)
 
     digitalWrite(_pinScreenWR, HIGH);  // Latch in the data
     digitalWrite(_pinScreenWR, LOW);   // Get ready for next byte
-
     // Set output pins to data value - LSB
     digitalWrite(_pinScreenD0,     dataLow8  & 0x01);
     digitalWrite(_pinScreenD1, (dataLow8>>1) & 0x01);
@@ -277,9 +315,8 @@ void Screen_K35_Parallel::_writeData88(uint8_t dataHigh8, uint8_t dataLow8)
     digitalWrite(_pinScreenD7, (dataLow8>>7) & 0x01);
 
     digitalWrite(_pinScreenWR, HIGH);  // Latch in the data
-
-    digitalWrite(_pinScreenChipSelect, HIGH);                                   // CS HIGH
-
+    digitalWrite(_pinScreenChipSelect, HIGH);
+#endif
 }
 
 //*****************************************************************************
@@ -290,6 +327,23 @@ void Screen_K35_Parallel::_writeData88(uint8_t dataHigh8, uint8_t dataLow8)
 //*****************************************************************************
 void Screen_K35_Parallel::_writeCommand16(uint16_t command16)
 {
+#ifdef F5529_DIRECT_IO
+    *out4 &= ~BV(2);             // digitalWrite(_pinScreenDataCommand, LOW)
+    *out4 &= ~BV(1);             // digitalWrite(_pinScreenChipSelect, LOW);
+    *out2 &= ~BV(7);             // digitalWrite(_pinScreenWR, LOW);
+
+    (command16   & 0x01) ? *out3 |= BV(4) : *out3 &= ~BV(4);
+    ((command16) & 0x02) ? *out3 |= BV(3) : *out3 &= ~BV(3);
+    ((command16) & 0x04) ? *out2 |= BV(0) : *out2 &= ~BV(0);
+    ((command16) & 0x08) ? *out1 |= BV(5) : *out1 &= ~BV(5);
+    ((command16) & 0x10) ? *out3 |= BV(2) : *out3 &= ~BV(2);
+    ((command16) & 0x20) ? *out6 |= BV(5) : *out6 &= ~BV(5);
+    ((command16) & 0x40) ? *out3 |= BV(1) : *out3 &= ~BV(1);
+    ((command16) & 0x80) ? *out3 |= BV(0) : *out3 &= ~BV(0);
+
+    *out2 |=  BV(7);             // digitalWrite(_pinScreenWR, HIGH);
+    *out4 |=  BV(1);             // digitalWrite(_pinScreenChipSelect, HIGH);
+#else
     digitalWrite(_pinScreenDataCommand, LOW);                                   // LOW = command
     digitalWrite(_pinScreenChipSelect, LOW);
     digitalWrite(_pinScreenWR, LOW);
@@ -306,12 +360,110 @@ void Screen_K35_Parallel::_writeCommand16(uint16_t command16)
 
     digitalWrite(_pinScreenWR, HIGH);  // Latch in the data
     digitalWrite(_pinScreenChipSelect, HIGH);
+#endif
+}
+
+void Screen_K35_Parallel::_writeCommandAndData16(uint16_t command16, uint8_t dataHigh8, uint8_t dataLow8)
+{
+#ifdef F5529_DIRECT_IO
+    *out4 &= ~BV(2);             // digitalWrite(_pinScreenDataCommand, LOW)
+    *out4 &= ~BV(1);             // digitalWrite(_pinScreenChipSelect, LOW);
+    *out2 &= ~BV(7);             // digitalWrite(_pinScreenWR, LOW);
+
+    (command16   & 0x01) ? *out3 |= BV(4) : *out3 &= ~BV(4);
+    ((command16) & 0x02) ? *out3 |= BV(3) : *out3 &= ~BV(3);
+    ((command16) & 0x04) ? *out2 |= BV(0) : *out2 &= ~BV(0);
+    ((command16) & 0x08) ? *out1 |= BV(5) : *out1 &= ~BV(5);
+    ((command16) & 0x10) ? *out3 |= BV(2) : *out3 &= ~BV(2);
+    ((command16) & 0x20) ? *out6 |= BV(5) : *out6 &= ~BV(5);
+    ((command16) & 0x40) ? *out3 |= BV(1) : *out3 &= ~BV(1);
+    ((command16) & 0x80) ? *out3 |= BV(0) : *out3 &= ~BV(0);
+
+    *out2 |=  BV(7);             // digitalWrite(_pinScreenWR, HIGH);
+    *out4 |=  BV(1);             // digitalWrite(_pinScreenChipSelect, HIGH);
+#else
+    digitalWrite(_pinScreenDataCommand, LOW);                                   // LOW = command
+    digitalWrite(_pinScreenChipSelect, LOW);
+    digitalWrite(_pinScreenWR, LOW);
+
+    // Set output pins to data value
+    digitalWrite(_pinScreenD0,     command16  & 0x01);
+    digitalWrite(_pinScreenD1, (command16>>1) & 0x01);
+    digitalWrite(_pinScreenD2, (command16>>2) & 0x01);
+    digitalWrite(_pinScreenD3, (command16>>3) & 0x01);
+    digitalWrite(_pinScreenD4, (command16>>4) & 0x01);
+    digitalWrite(_pinScreenD5, (command16>>5) & 0x01);
+    digitalWrite(_pinScreenD6, (command16>>6) & 0x01);
+    digitalWrite(_pinScreenD7, (command16>>7) & 0x01);
+
+    digitalWrite(_pinScreenWR, HIGH);  // Latch in the data
+    digitalWrite(_pinScreenChipSelect, HIGH);
+#endif
+#ifdef F5529_DIRECT_IO
+    *out4 |=  BV(2);             // digitalWrite(_pinScreenDataCommand, HIGH)
+    *out4 &= ~BV(1);             // digitalWrite(_pinScreenChipSelect, LOW);
+    *out2 &= ~BV(7);             // digitalWrite(_pinScreenWR, LOW);
+
+    (dataHigh8   & 0x01) ? *out3 |= BV(4) : *out3 &= ~BV(4);
+    ((dataHigh8) & 0x02) ? *out3 |= BV(3) : *out3 &= ~BV(3);
+    ((dataHigh8) & 0x04) ? *out2 |= BV(0) : *out2 &= ~BV(0);
+    ((dataHigh8) & 0x08) ? *out1 |= BV(5) : *out1 &= ~BV(5);
+    ((dataHigh8) & 0x10) ? *out3 |= BV(2) : *out3 &= ~BV(2);
+    ((dataHigh8) & 0x20) ? *out6 |= BV(5) : *out6 &= ~BV(5);
+    ((dataHigh8) & 0x40) ? *out3 |= BV(1) : *out3 &= ~BV(1);
+    ((dataHigh8) & 0x80) ? *out3 |= BV(0) : *out3 &= ~BV(0);
+
+    *out2 |=  BV(7);             // digitalWrite(_pinScreenWR, HIGH);
+    *out2 &= ~BV(7);             // digitalWrite(_pinScreenWR, LOW);
+
+    (dataLow8   & 0x01) ? *out3 |= BV(4) : *out3 &= ~BV(4);
+    ((dataLow8) & 0x02) ? *out3 |= BV(3) : *out3 &= ~BV(3);
+    ((dataLow8) & 0x04) ? *out2 |= BV(0) : *out2 &= ~BV(0);
+    ((dataLow8) & 0x08) ? *out1 |= BV(5) : *out1 &= ~BV(5);
+    ((dataLow8) & 0x10) ? *out3 |= BV(2) : *out3 &= ~BV(2);
+    ((dataLow8) & 0x20) ? *out6 |= BV(5) : *out6 &= ~BV(5);
+    ((dataLow8) & 0x40) ? *out3 |= BV(1) : *out3 &= ~BV(1);
+    ((dataLow8) & 0x80) ? *out3 |= BV(0) : *out3 &= ~BV(0);
+
+    *out2 |=  BV(7);             // digitalWrite(_pinScreenWR, HIGH);
+    *out4 |=  BV(1);             // digitalWrite(_pinScreenChipSelect, HIGH);
+#else
+    digitalWrite(_pinScreenDataCommand, HIGH);                                  // HIGH = data
+    digitalWrite(_pinScreenChipSelect, LOW);
+    digitalWrite(_pinScreenWR, LOW);
+
+    digitalWrite(_pinScreenD0,     dataHigh8  & 0x01);
+    digitalWrite(_pinScreenD1, (dataHigh8>>1) & 0x01);
+    digitalWrite(_pinScreenD2, (dataHigh8>>2) & 0x01);
+    digitalWrite(_pinScreenD3, (dataHigh8>>3) & 0x01);
+    digitalWrite(_pinScreenD4, (dataHigh8>>4) & 0x01);
+    digitalWrite(_pinScreenD5, (dataHigh8>>5) & 0x01);
+    digitalWrite(_pinScreenD6, (dataHigh8>>6) & 0x01);
+    digitalWrite(_pinScreenD7, (dataHigh8>>7) & 0x01);
+
+    digitalWrite(_pinScreenWR, HIGH);  // Latch in the data
+    digitalWrite(_pinScreenWR, LOW);   // Get ready for next byte
+    // Set output pins to data value - LSB
+    digitalWrite(_pinScreenD0,     dataLow8  & 0x01);
+    digitalWrite(_pinScreenD1, (dataLow8>>1) & 0x01);
+    digitalWrite(_pinScreenD2, (dataLow8>>2) & 0x01);
+    digitalWrite(_pinScreenD3, (dataLow8>>3) & 0x01);
+    digitalWrite(_pinScreenD4, (dataLow8>>4) & 0x01);
+    digitalWrite(_pinScreenD5, (dataLow8>>5) & 0x01);
+    digitalWrite(_pinScreenD6, (dataLow8>>6) & 0x01);
+    digitalWrite(_pinScreenD7, (dataLow8>>7) & 0x01);
+
+    digitalWrite(_pinScreenWR, HIGH);  // Latch in the data
+    digitalWrite(_pinScreenChipSelect, HIGH);
+#endif
 }
 
 void Screen_K35_Parallel::_writeRegister(uint8_t command8, uint16_t data16)
 {
-    _writeCommand16(command8);
-    _writeData16(data16);
+//    _writeCommand16(command8);
+////    _writeData16(data16);
+//    _writeData88(data16 >> 8, data16);
+_writeCommandAndData16(command8, data16 >> 8, data16);
 }
 
 void Screen_K35_Parallel::_orientCoordinates(uint16_t &x1, uint16_t &y1)
@@ -336,15 +488,25 @@ void Screen_K35_Parallel::_orientCoordinates(uint16_t &x1, uint16_t &y1)
 
 void Screen_K35_Parallel::_setPoint(uint16_t x1, uint16_t y1, uint16_t colour)           // compulsory
 {
-    _setCursor(x1, y1);
-    _writeData16(colour);
+//    _setCursor(x1, y1);
+    _orientCoordinates(x1, y1);
+//    _writeRegister(SSD2119_X_RAM_ADDR_REG, x1);
+    _writeCommandAndData16(SSD2119_X_RAM_ADDR_REG, x1 >> 8, x1);
+//    _writeRegister(SSD2119_Y_RAM_ADDR_REG, y1);
+    _writeCommandAndData16(SSD2119_Y_RAM_ADDR_REG, y1 >> 8, y1);
+//    _writeCommand16(SSD2119_RAM_DATA_REG);
+//    _writeData16(colour);
+//    _writeData88(colour >> 8, colour);
+    _writeCommandAndData16(SSD2119_RAM_DATA_REG, colour >> 8, colour);
 }
 
 void Screen_K35_Parallel::_setCursor(uint16_t x1, uint16_t y1)
 {
     _orientCoordinates(x1, y1);
-    _writeRegister(SSD2119_X_RAM_ADDR_REG, x1);
-    _writeRegister(SSD2119_Y_RAM_ADDR_REG, y1);
+//    _writeRegister(SSD2119_X_RAM_ADDR_REG, x1);
+_writeCommandAndData16(SSD2119_X_RAM_ADDR_REG, x1 >> 8, x1);
+//    _writeRegister(SSD2119_Y_RAM_ADDR_REG, y1);
+_writeCommandAndData16(SSD2119_Y_RAM_ADDR_REG, y1 >> 8, y1);
 
     _writeCommand16(SSD2119_RAM_DATA_REG);
 }
@@ -354,16 +516,21 @@ void Screen_K35_Parallel::_setWindow(uint16_t x1, uint16_t y1, uint16_t x2, uint
     _orientCoordinates(x1, y1);
     _orientCoordinates(x2, y2);
 
-    _writeRegister(SSD2119_X_RAM_ADDR_REG, x1);
-    _writeRegister(SSD2119_Y_RAM_ADDR_REG, y1);
+//    _writeRegister(SSD2119_X_RAM_ADDR_REG, x1);
+    _writeCommandAndData16(SSD2119_X_RAM_ADDR_REG, x1 >> 8, x1);
+//    _writeRegister(SSD2119_Y_RAM_ADDR_REG, y1);
+    _writeCommandAndData16(SSD2119_Y_RAM_ADDR_REG, y1 >> 8, y1);
 
     if (x1 > x2) _swap(x1, x2);
     if (y1 > y2) _swap(y1, y2);
 
-    _writeCommand16(SSD2119_V_RAM_POS_REG);
-    _writeData88(y2, y1);
-    _writeRegister(SSD2119_H_RAM_START_REG, x1);
-    _writeRegister(SSD2119_H_RAM_END_REG, x2);
+//    _writeCommand16(SSD2119_V_RAM_POS_REG);
+//    _writeData88(y2, y1);
+    _writeCommandAndData16(SSD2119_V_RAM_POS_REG, y2, y1);
+//    _writeRegister(SSD2119_H_RAM_START_REG, x1);
+    _writeCommandAndData16(SSD2119_H_RAM_START_REG, x1 >> 8, x1);
+//    _writeRegister(SSD2119_H_RAM_END_REG, x2);
+    _writeCommandAndData16(SSD2119_H_RAM_END_REG, x2 >> 8, x2);
 
     _writeCommand16(SSD2119_RAM_DATA_REG);
 }

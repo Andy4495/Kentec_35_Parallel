@@ -20,7 +20,7 @@
 ///
 /// @brief	Library release number
 ///
-#define Screen_K35_PARALLEL_RELEASE 104
+#define Screen_K35_PARALLEL_RELEASE 100
 
 #include "LCD_screen_font.h"
 
@@ -75,6 +75,7 @@ private:
     // Communication, write
     void _writeRegister(uint8_t command8, uint16_t data16);
     void _writeCommand16(uint16_t command16);
+    void _writeCommandAndData16(uint16_t command16, uint8_t dataHigh8, uint8_t dataLow8);
     void _writeData16(uint16_t data16);
 
     void _setCursor(uint16_t x1, uint16_t y1);
@@ -85,6 +86,12 @@ private:
 
     uint8_t _pinScreenDataCommand, _pinScreenReset, _pinScreenChipSelect, _pinScreenBackLight, _pinScreenWR, _pinScreenRD;
     uint8_t _pinScreenD0, _pinScreenD1, _pinScreenD2, _pinScreenD3, _pinScreenD4, _pinScreenD5, _pinScreenD6, _pinScreenD7;
+    // These should be wrappend in an F5529 #ifdef
+    volatile uint8_t *out3;
+    volatile uint8_t *out2;
+    volatile uint8_t *out1;
+    volatile uint8_t *out6;
+    volatile uint8_t *out4;
 };
 
 #endif
