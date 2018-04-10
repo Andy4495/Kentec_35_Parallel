@@ -92,6 +92,9 @@ private:
     volatile uint8_t *out1;
     volatile uint8_t *out6;
     volatile uint8_t *out4;
+#if defined(__MSP430F5529__)
+    const static uint8_t p3Lookup[];
+#endif
 };
 
 #endif
