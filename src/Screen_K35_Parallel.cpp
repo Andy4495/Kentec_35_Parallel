@@ -213,7 +213,6 @@ void Screen_K35_Parallel::begin()
     //    _screenDiagonal = 35;
     setFontSize(0);
 
-
     _penSolid  = false;
     _fontSolid = true;
     _flagRead  = false;
@@ -271,15 +270,10 @@ void Screen_K35_Parallel::_writeData88(uint8_t dataHigh8, uint8_t dataLow8)
     *out2 &= ~0x01;
     *out6 &= ~0x20;
 
-// Don't need clear bit logic, since taken care of above.
-//    if (dataHigh8   & 0x01)  *out3 |= BV(4) ;
-//    if ((dataHigh8) & 0x02)  *out3 |= BV(3) ;
+    // Don't need clear bit logic, since taken care of above.
     if ((dataHigh8) & 0x04)  *out2 |= 0x01 ;
     if ((dataHigh8) & 0x08)  *out1 |= 0x20 ;
-//    if ((dataHigh8) & 0x10)  *out3 |= BV(2) ;
-    *out6 |= (dataHigh8) & 0x20;   // No need for conditional, since bit posiitons are the same: bit 5
-//    if ((dataHigh8) & 0x40)  *out3 |= BV(1) ;
-//    if ((dataHigh8) & 0x80)  *out3 |= BV(0) ;
+    *out6 |= (dataHigh8) & 0x20;   // No need for conditional, since bit positions are the same: bit 5
     *out3 |= p3Lookup[dataHigh8];
 
     *out2 |=  0x80;             // digitalWrite(_pinScreenWR, HIGH);
@@ -292,14 +286,9 @@ void Screen_K35_Parallel::_writeData88(uint8_t dataHigh8, uint8_t dataLow8)
     *out6 &= ~0x20;
 
     // Don't need clear bit logic, since taken care of above.
-//    if (dataLow8   & 0x01)  *out3 |= BV(4) ;
-//    if ((dataLow8) & 0x02)  *out3 |= BV(3) ;
     if ((dataLow8) & 0x04)  *out2 |= 0x01 ;
     if ((dataLow8) & 0x08)  *out1 |= 0x20 ;
-//    if ((dataLow8) & 0x10)  *out3 |= BV(2) ;
-    *out6 |= (dataLow8) & 0x20;   // No need for conditional, since bit posiitons are the same: bit 5
-//    if ((dataLow8) & 0x40)  *out3 |= BV(1) ;
-//    if ((dataLow8) & 0x80)  *out3 |= BV(0) ;
+    *out6 |= (dataLow8) & 0x20;   // No need for conditional, since bit positions are the same: bit 5
     *out3 |= p3Lookup[dataLow8];
 
     *out2 |=  0x80;             // digitalWrite(_pinScreenWR, HIGH);
@@ -355,14 +344,9 @@ void Screen_K35_Parallel::_writeCommand16(uint16_t command16)
     *out6 &= ~0x20;
 
     // Don't need clear bit logic, since taken care of above.
-//    if (command16   & 0x01)  *out3 |= BV(4) ;
-//    if ((command16) & 0x02)  *out3 |= BV(3) ;
     if ((command16) & 0x04)  *out2 |= 0x01 ;
     if ((command16) & 0x08)  *out1 |= 0x20 ;
-//    if ((command16) & 0x10)  *out3 |= BV(2) ;
-    *out6 |= (command16) & 0x20;   // No need for conditional, since bit posiitons are the same: bit 5
-//    if ((command16) & 0x40)  *out3 |= BV(1) ;
-//    if ((command16) & 0x80)  *out3 |= BV(0) ;
+    *out6 |= (command16) & 0x20;   // No need for conditional, since bit positions are the same: bit 5
     *out3 |= p3Lookup[command16];
 
     *out2 |=  0x80;             // digitalWrite(_pinScreenWR, HIGH);
@@ -401,14 +385,9 @@ void Screen_K35_Parallel::_writeCommandAndData16(uint16_t command16, uint8_t dat
     *out6 &= ~0x20;
 
     // Don't need clear bit logic, since taken care of above.
-//    if (command16   & 0x01)  *out3 |= BV(4) ;
-//    if ((command16) & 0x02)  *out3 |= BV(3) ;
     if ((command16) & 0x04)  *out2 |= 0x01 ;
     if ((command16) & 0x08)  *out1 |= 0x20 ;
-//    if ((command16) & 0x10)  *out3 |= BV(2) ;
-    *out6 |= (command16) & 0x20;   // No need for conditional, since bit posiitons are the same: bit 5
-//    if ((command16) & 0x40)  *out3 |= BV(1) ;
-//    if ((command16) & 0x80)  *out3 |= BV(0) ;
+    *out6 |= (command16) & 0x20;   // No need for conditional, since bit positions are the same: bit 5
     *out3 |= p3Lookup[command16];
 
     *out2 |=  0x80;             // digitalWrite(_pinScreenWR, HIGH);
@@ -443,14 +422,9 @@ void Screen_K35_Parallel::_writeCommandAndData16(uint16_t command16, uint8_t dat
     *out6 &= ~0x20;
 
     // Don't need clear bit logic, since taken care of above.
-//    if (dataHigh8   & 0x01)  *out3 |= BV(4) ;
-//    if ((dataHigh8) & 0x02)  *out3 |= BV(3) ;
     if ((dataHigh8) & 0x04)  *out2 |= 0x01 ;
     if ((dataHigh8) & 0x08)  *out1 |= 0x20 ;
-//    if ((dataHigh8) & 0x10)  *out3 |= BV(2) ;
-    *out6 |= (dataHigh8) & 0x20;   // No need for conditional, since bit posiitons are the same: bit 5
-//    if ((dataHigh8) & 0x40)  *out3 |= BV(1) ;
-//    if ((dataHigh8) & 0x80)  *out3 |= BV(0) ;
+    *out6 |= (dataHigh8) & 0x20;   // No need for conditional, since bit positions are the same: bit 5
     *out3 |= p3Lookup[dataHigh8];
 
     *out2 |=  0x80;             // digitalWrite(_pinScreenWR, HIGH);
@@ -463,14 +437,9 @@ void Screen_K35_Parallel::_writeCommandAndData16(uint16_t command16, uint8_t dat
     *out6 &= ~0x20;
 
     // Don't need clear bit logic, since taken care of above.
-//    if (dataLow8   & 0x01)  *out3 |= BV(4) ;
-//    if ((dataLow8) & 0x02)  *out3 |= BV(3) ;
     if ((dataLow8) & 0x04)  *out2 |= 0x01 ;
     if ((dataLow8) & 0x08)  *out1 |= 0x20 ;
-//    if ((dataLow8) & 0x10)  *out3 |= BV(2) ;
     *out6 |= (dataLow8) & 0x20;   // No need for conditional, since bit posiitons are the same: bit 5
-//    if ((dataLow8) & 0x40)  *out3 |= BV(1) ;
-//    if ((dataLow8) & 0x80)  *out3 |= BV(0) ;
     *out3 |= p3Lookup[dataLow8];
 
     *out2 |=  0x80;             // digitalWrite(_pinScreenWR, HIGH);

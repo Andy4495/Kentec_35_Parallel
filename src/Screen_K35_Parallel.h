@@ -94,11 +94,17 @@ private:
     volatile uint8_t *out4;
 
 };
-// Need to wrap in an #ifdef
+
 #if defined(__MSP430F5529__)
-// Using the lookup table speeds up the display routines, but takes
-// 256 bytes of program space. 
-#ifndef F5529_SAVE_PROGMEM_SPACE
+// lookup table to convert the data value to the PORT3 bit positions
+// D7 -> P3.0
+// D6 -> P3.1
+// D4 -> P3.2
+// D1 -> P3.1
+// D0 -> P3.0
+// Using the lookup table speeds up the display routines significantly
+// and uses less code, since the altertative requires either bit shifts
+// or a conditional statement with an AND bit mask.
 const uint8_t p3Lookup[] = {
   0x00, 0x10, 0x08, 0x18, 0x00, 0x10, 0x08, 0x18,
   0x00, 0x10, 0x08, 0x18, 0x00, 0x10, 0x08, 0x18,
@@ -133,7 +139,6 @@ const uint8_t p3Lookup[] = {
   0x07, 0x17, 0x0F, 0x1F, 0x07, 0x17, 0x0F, 0x1F,
   0x07, 0x17, 0x0F, 0x1F, 0x07, 0x17, 0x0F, 0x1F
 };
-#endif
 #endif
 
 #endif
