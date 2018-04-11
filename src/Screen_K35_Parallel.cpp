@@ -67,14 +67,6 @@
 #endif
 
 // Touch is not supported by this library
-#ifdef F5529_DIRECT_IO
-const uint8_t Screen_K35_Parallel::p3Lookup[] = {
-  0b00000, 0b10000, 0b01000, 0b11000, 0b00100, 0b10100, 0b01100, 0b11100,
-  0b00010, 0b10010, 0b01010, 0b11010, 0b00110, 0b10110, 0b01110, 0b11110,
-  0b00001, 0b10001, 0b01001, 0b11001, 0b00101, 0b10101, 0b01101, 0b11101,
-  0b00011, 0b10011, 0b01011, 0b11011, 0b00111, 0b10111, 0b01111, 0b11111
-};
-#endif
 
 // Code
 Screen_K35_Parallel::Screen_K35_Parallel()
@@ -269,13 +261,9 @@ void Screen_K35_Parallel::_writeData16(uint16_t data16)
 void Screen_K35_Parallel::_writeData88(uint8_t dataHigh8, uint8_t dataLow8)
 {
 #ifdef F5529_DIRECT_IO
-    uint8_t lookup;
-    lookup = (dataHigh8 & 0xd0) >> 2  | (dataHigh8 & 0x03);
-    lookup = (lookup    & 0x30) >> 1  | (lookup    & 0x07);
-
-    *out4 |=  BV(2);             // digitalWrite(_pinScreenDataCommand, HIGH)
-    *out4 &= ~BV(1);             // digitalWrite(_pinScreenChipSelect, LOW);
-    *out2 &= ~BV(7);             // digitalWrite(_pinScreenWR, LOW);
+    *out4 |=  0x04;             // digitalWrite(_pinScreenDataCommand, HIGH)
+    *out4 &= ~0x02;             // digitalWrite(_pinScreenChipSelect, LOW);
+    *out2 &= ~0x80;             // digitalWrite(_pinScreenWR, LOW);
 
     // Clear the bits first, then only set bits if needed
     *out3 &= ~0x1f;
@@ -286,19 +274,16 @@ void Screen_K35_Parallel::_writeData88(uint8_t dataHigh8, uint8_t dataLow8)
 // Don't need clear bit logic, since taken care of above.
 //    if (dataHigh8   & 0x01)  *out3 |= BV(4) ;
 //    if ((dataHigh8) & 0x02)  *out3 |= BV(3) ;
-    if ((dataHigh8) & 0x04)  *out2 |= BV(0) ;
-    if ((dataHigh8) & 0x08)  *out1 |= BV(5) ;
+    if ((dataHigh8) & 0x04)  *out2 |= 0x01 ;
+    if ((dataHigh8) & 0x08)  *out1 |= 0x20 ;
 //    if ((dataHigh8) & 0x10)  *out3 |= BV(2) ;
     *out6 |= (dataHigh8) & 0x20;   // No need for conditional, since bit posiitons are the same: bit 5
 //    if ((dataHigh8) & 0x40)  *out3 |= BV(1) ;
 //    if ((dataHigh8) & 0x80)  *out3 |= BV(0) ;
-    *out3 |= p3Lookup[lookup];
+    *out3 |= p3Lookup[dataHigh8];
 
-    *out2 |=  BV(7);             // digitalWrite(_pinScreenWR, HIGH);
-    *out2 &= ~BV(7);             // digitalWrite(_pinScreenWR, LOW);
-
-    lookup = (dataLow8  & 0xd0) >> 2  | (dataLow8 & 0x03);
-    lookup = (lookup    & 0x30) >> 1  | (lookup    & 0x07);
+    *out2 |=  0x80;             // digitalWrite(_pinScreenWR, HIGH);
+    *out2 &= ~0x80;             // digitalWrite(_pinScreenWR, LOW);
 
     // Clear the bits first, then only set bits if needed
     *out3 &= ~0x1f;
@@ -309,16 +294,16 @@ void Screen_K35_Parallel::_writeData88(uint8_t dataHigh8, uint8_t dataLow8)
     // Don't need clear bit logic, since taken care of above.
 //    if (dataLow8   & 0x01)  *out3 |= BV(4) ;
 //    if ((dataLow8) & 0x02)  *out3 |= BV(3) ;
-    if ((dataLow8) & 0x04)  *out2 |= BV(0) ;
-    if ((dataLow8) & 0x08)  *out1 |= BV(5) ;
+    if ((dataLow8) & 0x04)  *out2 |= 0x01 ;
+    if ((dataLow8) & 0x08)  *out1 |= 0x20 ;
 //    if ((dataLow8) & 0x10)  *out3 |= BV(2) ;
     *out6 |= (dataLow8) & 0x20;   // No need for conditional, since bit posiitons are the same: bit 5
 //    if ((dataLow8) & 0x40)  *out3 |= BV(1) ;
 //    if ((dataLow8) & 0x80)  *out3 |= BV(0) ;
-    *out3 |= p3Lookup[lookup];
+    *out3 |= p3Lookup[dataLow8];
 
-    *out2 |=  BV(7);             // digitalWrite(_pinScreenWR, HIGH);
-    *out4 |=  BV(1);             // digitalWrite(_pinScreenChipSelect, HIGH);
+    *out2 |=  0x80;             // digitalWrite(_pinScreenWR, HIGH);
+    *out4 |=  0x02;             // digitalWrite(_pinScreenChipSelect, HIGH);
 #else
     digitalWrite(_pinScreenDataCommand, HIGH);                                  // HIGH = data
     digitalWrite(_pinScreenChipSelect, LOW);
@@ -359,13 +344,9 @@ void Screen_K35_Parallel::_writeData88(uint8_t dataHigh8, uint8_t dataLow8)
 void Screen_K35_Parallel::_writeCommand16(uint16_t command16)
 {
 #ifdef F5529_DIRECT_IO
-    uint8_t lookup;
-    lookup = (command16 & 0xd0) >> 2  | (command16 & 0x03);
-    lookup = (lookup    & 0x30) >> 1  | (lookup    & 0x07);
-
-    *out4 &= ~BV(2);             // digitalWrite(_pinScreenDataCommand, LOW)
-    *out4 &= ~BV(1);             // digitalWrite(_pinScreenChipSelect, LOW);
-    *out2 &= ~BV(7);             // digitalWrite(_pinScreenWR, LOW);
+    *out4 &= ~0x04;             // digitalWrite(_pinScreenDataCommand, LOW)
+    *out4 &= ~0x02;             // digitalWrite(_pinScreenChipSelect, LOW);
+    *out2 &= ~0x80;             // digitalWrite(_pinScreenWR, LOW);
 
     // Clear the bits first, then only set bits if needed
     *out3 &= ~0x1f;
@@ -376,16 +357,16 @@ void Screen_K35_Parallel::_writeCommand16(uint16_t command16)
     // Don't need clear bit logic, since taken care of above.
 //    if (command16   & 0x01)  *out3 |= BV(4) ;
 //    if ((command16) & 0x02)  *out3 |= BV(3) ;
-    if ((command16) & 0x04)  *out2 |= BV(0) ;
-    if ((command16) & 0x08)  *out1 |= BV(5) ;
+    if ((command16) & 0x04)  *out2 |= 0x01 ;
+    if ((command16) & 0x08)  *out1 |= 0x20 ;
 //    if ((command16) & 0x10)  *out3 |= BV(2) ;
     *out6 |= (command16) & 0x20;   // No need for conditional, since bit posiitons are the same: bit 5
 //    if ((command16) & 0x40)  *out3 |= BV(1) ;
 //    if ((command16) & 0x80)  *out3 |= BV(0) ;
-    *out3 |= p3Lookup[lookup];
+    *out3 |= p3Lookup[command16];
 
-    *out2 |=  BV(7);             // digitalWrite(_pinScreenWR, HIGH);
-    *out4 |=  BV(1);             // digitalWrite(_pinScreenChipSelect, HIGH);
+    *out2 |=  0x80;             // digitalWrite(_pinScreenWR, HIGH);
+    *out4 |=  0x02;             // digitalWrite(_pinScreenChipSelect, HIGH);
 #else
     digitalWrite(_pinScreenDataCommand, LOW);                                   // LOW = command
     digitalWrite(_pinScreenChipSelect, LOW);
@@ -409,13 +390,9 @@ void Screen_K35_Parallel::_writeCommand16(uint16_t command16)
 void Screen_K35_Parallel::_writeCommandAndData16(uint16_t command16, uint8_t dataHigh8, uint8_t dataLow8)
 {
 #ifdef F5529_DIRECT_IO
-    uint8_t lookup;
-    lookup = (command16 & 0xd0) >> 2  | (command16 & 0x03);
-    lookup = (lookup    & 0x30) >> 1  | (lookup    & 0x07);
-
-    *out4 &= ~BV(2);             // digitalWrite(_pinScreenDataCommand, LOW)
-    *out4 &= ~BV(1);             // digitalWrite(_pinScreenChipSelect, LOW);
-    *out2 &= ~BV(7);             // digitalWrite(_pinScreenWR, LOW);
+    *out4 &= ~0x04;             // digitalWrite(_pinScreenDataCommand, LOW)
+    *out4 &= ~0x02;             // digitalWrite(_pinScreenChipSelect, LOW);
+    *out2 &= ~0x80;             // digitalWrite(_pinScreenWR, LOW);
 
     // Clear the bits first, then only set bits if needed
     *out3 &= ~0x1f;
@@ -426,16 +403,16 @@ void Screen_K35_Parallel::_writeCommandAndData16(uint16_t command16, uint8_t dat
     // Don't need clear bit logic, since taken care of above.
 //    if (command16   & 0x01)  *out3 |= BV(4) ;
 //    if ((command16) & 0x02)  *out3 |= BV(3) ;
-    if ((command16) & 0x04)  *out2 |= BV(0) ;
-    if ((command16) & 0x08)  *out1 |= BV(5) ;
+    if ((command16) & 0x04)  *out2 |= 0x01 ;
+    if ((command16) & 0x08)  *out1 |= 0x20 ;
 //    if ((command16) & 0x10)  *out3 |= BV(2) ;
     *out6 |= (command16) & 0x20;   // No need for conditional, since bit posiitons are the same: bit 5
 //    if ((command16) & 0x40)  *out3 |= BV(1) ;
 //    if ((command16) & 0x80)  *out3 |= BV(0) ;
-    *out3 |= p3Lookup[lookup];
+    *out3 |= p3Lookup[command16];
 
-    *out2 |=  BV(7);             // digitalWrite(_pinScreenWR, HIGH);
-    *out4 |=  BV(1);             // digitalWrite(_pinScreenChipSelect, HIGH);
+    *out2 |=  0x80;             // digitalWrite(_pinScreenWR, HIGH);
+    *out4 |=  0x02;             // digitalWrite(_pinScreenChipSelect, HIGH);
 #else
     digitalWrite(_pinScreenDataCommand, LOW);                                   // LOW = command
     digitalWrite(_pinScreenChipSelect, LOW);
@@ -455,12 +432,9 @@ void Screen_K35_Parallel::_writeCommandAndData16(uint16_t command16, uint8_t dat
     digitalWrite(_pinScreenChipSelect, HIGH);
 #endif
 #ifdef F5529_DIRECT_IO
-    lookup = (dataHigh8 & 0xd0) >> 2  | (dataHigh8 & 0x03);
-    lookup = (lookup    & 0x30) >> 1  | (lookup    & 0x07);
-
-    *out4 |=  BV(2);             // digitalWrite(_pinScreenDataCommand, HIGH)
-    *out4 &= ~BV(1);             // digitalWrite(_pinScreenChipSelect, LOW);
-    *out2 &= ~BV(7);             // digitalWrite(_pinScreenWR, LOW);
+    *out4 |=  0x04;             // digitalWrite(_pinScreenDataCommand, HIGH)
+    *out4 &= ~0x02;             // digitalWrite(_pinScreenChipSelect, LOW);
+    *out2 &= ~0x80;             // digitalWrite(_pinScreenWR, LOW);
 
     // Clear the bits first, then only set bits if needed
     *out3 &= ~0x1f;
@@ -471,19 +445,16 @@ void Screen_K35_Parallel::_writeCommandAndData16(uint16_t command16, uint8_t dat
     // Don't need clear bit logic, since taken care of above.
 //    if (dataHigh8   & 0x01)  *out3 |= BV(4) ;
 //    if ((dataHigh8) & 0x02)  *out3 |= BV(3) ;
-    if ((dataHigh8) & 0x04)  *out2 |= BV(0) ;
-    if ((dataHigh8) & 0x08)  *out1 |= BV(5) ;
+    if ((dataHigh8) & 0x04)  *out2 |= 0x01 ;
+    if ((dataHigh8) & 0x08)  *out1 |= 0x20 ;
 //    if ((dataHigh8) & 0x10)  *out3 |= BV(2) ;
     *out6 |= (dataHigh8) & 0x20;   // No need for conditional, since bit posiitons are the same: bit 5
 //    if ((dataHigh8) & 0x40)  *out3 |= BV(1) ;
 //    if ((dataHigh8) & 0x80)  *out3 |= BV(0) ;
-    *out3 |= p3Lookup[lookup];
+    *out3 |= p3Lookup[dataHigh8];
 
-    *out2 |=  BV(7);             // digitalWrite(_pinScreenWR, HIGH);
-    *out2 &= ~BV(7);             // digitalWrite(_pinScreenWR, LOW);
-
-    lookup = (dataLow8 & 0xd0)  >> 2  | (dataLow8 & 0x03);
-    lookup = (lookup    & 0x30) >> 1  | (lookup    & 0x07);
+    *out2 |=  0x80;             // digitalWrite(_pinScreenWR, HIGH);
+    *out2 &= ~0x80;             // digitalWrite(_pinScreenWR, LOW);
 
     // Clear the bits first, then only set bits if needed
     *out3 &= ~0x1f;
@@ -494,16 +465,16 @@ void Screen_K35_Parallel::_writeCommandAndData16(uint16_t command16, uint8_t dat
     // Don't need clear bit logic, since taken care of above.
 //    if (dataLow8   & 0x01)  *out3 |= BV(4) ;
 //    if ((dataLow8) & 0x02)  *out3 |= BV(3) ;
-    if ((dataLow8) & 0x04)  *out2 |= BV(0) ;
-    if ((dataLow8) & 0x08)  *out1 |= BV(5) ;
+    if ((dataLow8) & 0x04)  *out2 |= 0x01 ;
+    if ((dataLow8) & 0x08)  *out1 |= 0x20 ;
 //    if ((dataLow8) & 0x10)  *out3 |= BV(2) ;
     *out6 |= (dataLow8) & 0x20;   // No need for conditional, since bit posiitons are the same: bit 5
 //    if ((dataLow8) & 0x40)  *out3 |= BV(1) ;
 //    if ((dataLow8) & 0x80)  *out3 |= BV(0) ;
-    *out3 |= p3Lookup[lookup];
+    *out3 |= p3Lookup[dataLow8];
 
-    *out2 |=  BV(7);             // digitalWrite(_pinScreenWR, HIGH);
-    *out4 |=  BV(1);             // digitalWrite(_pinScreenChipSelect, HIGH);
+    *out2 |=  0x80;             // digitalWrite(_pinScreenWR, HIGH);
+    *out4 |=  0x02;             // digitalWrite(_pinScreenChipSelect, HIGH);
 #else
     digitalWrite(_pinScreenDataCommand, HIGH);                                  // HIGH = data
     digitalWrite(_pinScreenChipSelect, LOW);
