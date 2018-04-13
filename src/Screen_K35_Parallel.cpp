@@ -7,15 +7,27 @@
 //     Contact the author above for other uses
 //
 // Modfied by Andy4495 for use with Kentec EB-LM4F120-L35 BoosterPack with parallel interface
-// 04/08/2018
+//
+// 1.0.0 - 04/08/2018 - Andy4495 - Initial release.
+//
 // https://gitlab.com/Andy4495/Screen_K35_Parallel
-// This version continues to be licensed under CC BY-NC-SA 3.0
+// This version continues to be licensed under CC BY-NC-SA 3.0 for hobbyist and personal usage.
 // See LICENSE file at above GitLab repository
 //
 //
 
 // Library header
 #include "Screen_K35_Parallel.h"
+
+#if defined(__LM4F120H5QR__)
+#include "inc/hw_gpio.h"
+#include "driverlib/sysctl.h"
+#endif
+
+///
+/// @name	SSD2119 constants
+///
+/// @{
 
 #define SSD2119_DEVICE_CODE_READ_REG  0x00
 #define SSD2119_OSC_START_REG         0x00
@@ -58,15 +70,65 @@
 #define K35_WIDTH       320 // Vertical
 #define K35_HEIGHT      240 // Horizontal
 
+/// @}
+
 #define GPIO_SLOW 0
-#define GPIO_FAST 1         // GPIO_FAST is not supported by this library
+#define GPIO_FAST 1
 #define GPIO_MODE GPIO_SLOW
+
+#if ((GPIO_MODE == GPIO_FAST) && defined(__LM4F120H5QR__))
+//
+// LCD control line GPIO definitions.
+//
+#define LCD_CS_PERIPH           SYSCTL_PERIPH_GPIOA
+#define LCD_CS_BASE             GPIO_PORTA_BASE
+#define LCD_CS_PIN              GPIO_PIN_4
+#define LCD_DC_PERIPH           SYSCTL_PERIPH_GPIOA
+#define LCD_DC_BASE             GPIO_PORTA_BASE
+#define LCD_DC_PIN              GPIO_PIN_5
+
+#endif
 
 #if defined(__MSP430F5529__)  // Use direct port access with F5529
 #define F5529_DIRECT_IO
 #endif
 
-// Touch is not supported by this library
+
+///
+/// @name   Touch constants
+///
+/// @{
+
+#define TOUCH_TRIM  0x10 ///< Touch threshold
+#define TOUCH_XP 5  // Analog pin
+#define TOUCH_YP 6  // Analog pin
+#define TOUCH_XN 12
+#define TOUCH_YN 11
+
+/// @}
+
+
+///
+/// @brief	Solution for touch on MSP432 ADC
+/// MSP432 14-bit but 10-bit available by default
+/// * Solution 1: keep 10-bit
+/// * Solution 2: set to 12-bit with
+///
+#define MSP432_SOLUTION 1
+
+#if defined(__MSP432P401R__)
+#   if (MSP432_SOLUTION == 1)
+// Solution 1: MSP432 14-bit but 10-bit available by default
+#       define ANALOG_RESOLUTION 1023
+#   else
+// Solution 2: MSP432 14-bit set to 12-bit
+#       define ANALOG_RESOLUTION 4095
+#   endif
+#else
+// LM4F TM4C F5529 12-bit
+#   define ANALOG_RESOLUTION 4095
+#endif
+
 
 // Code
 Screen_K35_Parallel::Screen_K35_Parallel()
@@ -131,41 +193,56 @@ void Screen_K35_Parallel::begin()
     //    _writeCommand16(SSD2119_SLEEP_MODE_REG);
     //    _writeData16(0x0001);
 
+    //
     // Power parameters
+    //
     _writeCommand16(SSD2119_PWR_CTRL_5_REG);
     _writeData16(0x00BA);
     _writeCommand16(SSD2119_VCOM_OTP_1_REG);
     _writeData16(0x0006);
 
+    //
     // Start oscillator
+    //
     _writeCommand16(SSD2119_OSC_START_REG);
     _writeData16(0x0001);
 
+    //
     // Set pixel format and basic display orientation
+    //
     _writeCommand16(SSD2119_OUTPUT_CTRL_REG);
     _writeData16(0x30EF);
     _writeCommand16(SSD2119_LCD_DRIVE_AC_CTRL_REG);
     _writeData16(0x0600);
 
+    //
     // Exit sleep mode
+    //
     _writeCommand16(SSD2119_SLEEP_MODE_REG);
     _writeData16(0x0000);
 
-    delay(31);              // 30 ms delay after exit sleep per datasheet
+    delay(31);              // Datasheet specifies min 30 ms delay after exit sleep
 
     // Pixel color format
+    //
     _writeCommand16(SSD2119_ENTRY_MODE_REG);
     _writeData16(ENTRY_MODE_DEFAULT);
 
+    //
     // Enable  display
+    //
     _writeCommand16(SSD2119_DISPLAY_CTRL_REG);
     _writeData16(0x0033);
 
+    //
     // Set VCIX2 voltage to 6.1V
+    //
     _writeCommand16(SSD2119_PWR_CTRL_2_REG);
     _writeData16(0x0005);
 
+    //
     // Gamma correction
+    //
     _writeCommand16(SSD2119_GAMMA_CTRL_1_REG);
     _writeData16(0x0000);
     _writeCommand16(SSD2119_GAMMA_CTRL_2_REG);
@@ -187,13 +264,17 @@ void Screen_K35_Parallel::begin()
     _writeCommand16(SSD2119_GAMMA_CTRL_10_REG);
     _writeData16(0x0F03);
 
+    //
     // Configure Vlcd63 and VCOMl
+    //
     _writeCommand16(SSD2119_PWR_CTRL_3_REG);
     _writeData16(0x0007);
     _writeCommand16(SSD2119_PWR_CTRL_4_REG);
     _writeData16(0x3100);
 
+    //
     // Display size and GRAM window
+    //
     _writeCommand16(SSD2119_V_RAM_POS_REG);
     _writeData16((K35_HEIGHT-1) << 8);
     _writeCommand16(SSD2119_H_RAM_START_REG);
@@ -213,12 +294,44 @@ void Screen_K35_Parallel::begin()
     //    _screenDiagonal = 35;
     setFontSize(0);
 
+    // Touch
+    uint16_t x0, y0, z0;
+    _getRawTouch(x0, y0, z0);
+
+    // Touch calibration
+    _touchTrim = TOUCH_TRIM;
+
+#if (ANALOG_RESOLUTION == 4095)
+#   warning ANALOG_RESOLUTION == 4095
+    _touchXmin = 3077;
+    _touchXmax = 881;
+    _touchYmin = 3354;
+    _touchYmax = 639;
+#elif (ANALOG_RESOLUTION == 1023)
+#   warning ANALOG_RESOLUTION == 1023
+    _touchXmin = 837;
+    _touchXmax = 160;
+    _touchYmin = 898;
+    _touchYmax = 114;
+#else
+#error Wrong
+#endif
+
     _penSolid  = false;
     _fontSolid = true;
     _flagRead  = false;
     //    _flagIntensity = true;
     //    _fsmArea   = true;
     //    _touchTrim = 10;
+
+    // Solution 2: MSP432 14-bit set to 12-bit
+#if defined(__MSP432P401R__) && (MSP432_SOLUTION == 2)
+    analogReadResolution(12);
+#endif
+
+#if (ANALOG_RESOLUTION == 4095)
+    _touchTrim *= 4;
+#endif
 
     clear();
 }
@@ -264,13 +377,13 @@ void Screen_K35_Parallel::_writeData88(uint8_t dataHigh8, uint8_t dataLow8)
     *out4 &= ~0x02;             // digitalWrite(_pinScreenChipSelect, LOW);
     *out2 &= ~0x80;             // digitalWrite(_pinScreenWR, LOW);
 
-    // Clear the bits first, then only set bits if needed
+    // Clear the IO Port bits first, then only set bits if needed
     *out3 &= ~0x1f;
     *out1 &= ~0x20;
     *out2 &= ~0x01;
     *out6 &= ~0x20;
 
-    // Don't need clear bit logic, since taken care of above.
+    // Only need logic to set the IO bits here, since they were all cleared above
     if ((dataHigh8) & 0x04)  *out2 |= 0x01 ;
     if ((dataHigh8) & 0x08)  *out1 |= 0x20 ;
     *out6 |= (dataHigh8) & 0x20;   // No need for conditional, since bit positions are the same: bit 5
@@ -279,13 +392,13 @@ void Screen_K35_Parallel::_writeData88(uint8_t dataHigh8, uint8_t dataLow8)
     *out2 |=  0x80;             // digitalWrite(_pinScreenWR, HIGH);
     *out2 &= ~0x80;             // digitalWrite(_pinScreenWR, LOW);
 
-    // Clear the bits first, then only set bits if needed
+    // Clear the IO Port bits first, then only set bits if needed
     *out3 &= ~0x1f;
     *out1 &= ~0x20;
     *out2 &= ~0x01;
     *out6 &= ~0x20;
 
-    // Don't need clear bit logic, since taken care of above.
+    // Only need logic to set the IO bits here, since they were all cleared above
     if ((dataLow8) & 0x04)  *out2 |= 0x01 ;
     if ((dataLow8) & 0x08)  *out1 |= 0x20 ;
     *out6 |= (dataLow8) & 0x20;   // No need for conditional, since bit positions are the same: bit 5
@@ -337,13 +450,13 @@ void Screen_K35_Parallel::_writeCommand16(uint16_t command16)
     *out4 &= ~0x02;             // digitalWrite(_pinScreenChipSelect, LOW);
     *out2 &= ~0x80;             // digitalWrite(_pinScreenWR, LOW);
 
-    // Clear the bits first, then only set bits if needed
+    // Clear the IO Port bits first, then only set bits if needed
     *out3 &= ~0x1f;
     *out1 &= ~0x20;
     *out2 &= ~0x01;
     *out6 &= ~0x20;
 
-    // Don't need clear bit logic, since taken care of above.
+    // Only need logic to set the IO bits here, since they were all cleared above
     if ((command16) & 0x04)  *out2 |= 0x01 ;
     if ((command16) & 0x08)  *out1 |= 0x20 ;
     *out6 |= (command16) & 0x20;   // No need for conditional, since bit positions are the same: bit 5
@@ -371,6 +484,13 @@ void Screen_K35_Parallel::_writeCommand16(uint16_t command16)
 #endif
 }
 
+//*****************************************************************************
+//
+// Writes a command and data to the SSD2119 in a single function call.
+// This avoids overhead of separate function calls for a slight speed
+// improvement.
+//
+//*****************************************************************************
 void Screen_K35_Parallel::_writeCommandAndData16(uint16_t command16, uint8_t dataHigh8, uint8_t dataLow8)
 {
 #ifdef F5529_DIRECT_IO
@@ -378,13 +498,13 @@ void Screen_K35_Parallel::_writeCommandAndData16(uint16_t command16, uint8_t dat
     *out4 &= ~0x02;             // digitalWrite(_pinScreenChipSelect, LOW);
     *out2 &= ~0x80;             // digitalWrite(_pinScreenWR, LOW);
 
-    // Clear the bits first, then only set bits if needed
+    // Clear the IO Port bits first, then only set bits if needed
     *out3 &= ~0x1f;
     *out1 &= ~0x20;
     *out2 &= ~0x01;
     *out6 &= ~0x20;
 
-    // Don't need clear bit logic, since taken care of above.
+    // Only need logic to set the IO bits here, since they were all cleared above
     if ((command16) & 0x04)  *out2 |= 0x01 ;
     if ((command16) & 0x08)  *out1 |= 0x20 ;
     *out6 |= (command16) & 0x20;   // No need for conditional, since bit positions are the same: bit 5
@@ -415,13 +535,13 @@ void Screen_K35_Parallel::_writeCommandAndData16(uint16_t command16, uint8_t dat
     *out4 &= ~0x02;             // digitalWrite(_pinScreenChipSelect, LOW);
     *out2 &= ~0x80;             // digitalWrite(_pinScreenWR, LOW);
 
-    // Clear the bits first, then only set bits if needed
+    // Clear the IO Port bits first, then only set bits if needed
     *out3 &= ~0x1f;
     *out1 &= ~0x20;
     *out2 &= ~0x01;
     *out6 &= ~0x20;
 
-    // Don't need clear bit logic, since taken care of above.
+    // Only need logic to set the IO bits here, since they were all cleared above
     if ((dataHigh8) & 0x04)  *out2 |= 0x01 ;
     if ((dataHigh8) & 0x08)  *out1 |= 0x20 ;
     *out6 |= (dataHigh8) & 0x20;   // No need for conditional, since bit positions are the same: bit 5
@@ -478,8 +598,7 @@ void Screen_K35_Parallel::_writeCommandAndData16(uint16_t command16, uint8_t dat
 void Screen_K35_Parallel::_writeRegister(uint8_t command8, uint16_t data16)
 {
 //    _writeCommand16(command8);
-////    _writeData16(data16);
-//    _writeData88(data16 >> 8, data16);
+//    _writeData16(data16);
 _writeCommandAndData16(command8, data16 >> 8, data16);
 }
 
@@ -513,7 +632,6 @@ void Screen_K35_Parallel::_setPoint(uint16_t x1, uint16_t y1, uint16_t colour)  
     _writeCommandAndData16(SSD2119_Y_RAM_ADDR_REG, y1 >> 8, y1);
 //    _writeCommand16(SSD2119_RAM_DATA_REG);
 //    _writeData16(colour);
-//    _writeData88(colour >> 8, colour);
     _writeCommandAndData16(SSD2119_RAM_DATA_REG, colour >> 8, colour);
 }
 
@@ -521,9 +639,9 @@ void Screen_K35_Parallel::_setCursor(uint16_t x1, uint16_t y1)
 {
     _orientCoordinates(x1, y1);
 //    _writeRegister(SSD2119_X_RAM_ADDR_REG, x1);
-_writeCommandAndData16(SSD2119_X_RAM_ADDR_REG, x1 >> 8, x1);
+    _writeCommandAndData16(SSD2119_X_RAM_ADDR_REG, x1 >> 8, x1);
 //    _writeRegister(SSD2119_Y_RAM_ADDR_REG, y1);
-_writeCommandAndData16(SSD2119_Y_RAM_ADDR_REG, y1 >> 8, y1);
+    _writeCommandAndData16(SSD2119_Y_RAM_ADDR_REG, y1 >> 8, y1);
 
     _writeCommand16(SSD2119_RAM_DATA_REG);
 }
@@ -573,6 +691,117 @@ void Screen_K35_Parallel::_fastFill(uint16_t x1, uint16_t y1, uint16_t x2, uint1
     }
 }
 
+// Touch
+void Screen_K35_Parallel::_getRawTouch(uint16_t &x0, uint16_t &y0, uint16_t &z0)
+{
+    // --- 2015-08-04 _getRawTouch revised entirely
+    // Tested against MSP432, F5529 and LM4F/TM4C
+    // However, the calibrateTouch() may throw wrong results
+    //
+    int16_t a, b, c, d;
+    bool flag;
+
+#if defined(__MSP432P401R__)
+    pinMode(TOUCH_YP, OUTPUT);
+    pinMode(TOUCH_YN, OUTPUT);
+    pinMode(TOUCH_XP, OUTPUT);
+    pinMode(TOUCH_XN, OUTPUT);
+    digitalWrite(TOUCH_YP, LOW);
+    digitalWrite(TOUCH_YN, LOW);
+    digitalWrite(TOUCH_XP, LOW);
+    digitalWrite(TOUCH_XN, LOW);
+
+    delayMicroseconds(1000); // delay(1);
+#endif
+
+    do {
+        flag = false;
+
+        // Read x
+        // xp = +Vref
+        // xn = ground
+        // yp = measure
+        // yn = open
+#ifndef ENERGIA
+        digitalWrite(TOUCH_YP, LOW);
+        digitalWrite(TOUCH_YN, LOW);
+#endif
+        pinMode(TOUCH_YP, INPUT);
+        pinMode(TOUCH_YN, INPUT);
+
+        pinMode(TOUCH_XP, OUTPUT);
+        pinMode(TOUCH_XN, OUTPUT);
+        digitalWrite(TOUCH_XP, HIGH);
+        digitalWrite(TOUCH_XN, LOW);
+
+        delayMicroseconds(1000); // delay(1);
+        a = analogRead(TOUCH_YP);
+        delayMicroseconds(1000); // delay(1);
+        b = analogRead(TOUCH_YP);
+
+        flag |= (absDiff(a, b) > 8);
+        x0  = ANALOG_RESOLUTION - a;
+
+        // Read y
+        // xp = measure
+        // xn = open
+        // yp = +Vref
+        // yn = ground
+#ifndef ENERGIA
+        digitalWrite(TOUCH_XP, LOW);
+        digitalWrite(TOUCH_XN, LOW);
+#endif
+        pinMode(TOUCH_XP, INPUT);
+        pinMode(TOUCH_XN, INPUT);
+
+        pinMode(TOUCH_YP, OUTPUT);
+        pinMode(TOUCH_YN, OUTPUT);
+        digitalWrite(TOUCH_YP, HIGH);
+        digitalWrite(TOUCH_YN, LOW);
+
+        delayMicroseconds(1000); // delay(1);
+        c = analogRead(TOUCH_XP);
+        delayMicroseconds(1000); // delay(1);
+        d = analogRead(TOUCH_XP);
+
+        flag |= (absDiff(c, d) > 8);
+        y0  = ANALOG_RESOLUTION - c;
+
+        // Read z
+        // xp = ground
+        // xn = measure
+        // yp = measure
+        // yn = +Vref
+        pinMode(TOUCH_XP, OUTPUT);
+        pinMode(TOUCH_YN, OUTPUT);
+        digitalWrite(TOUCH_XP, LOW);
+        digitalWrite(TOUCH_YN, HIGH);
+
+#ifndef ENERGIA
+        digitalWrite(TOUCH_XN, LOW);
+        digitalWrite(TOUCH_YP, LOW);
+#endif
+        pinMode(TOUCH_XN, INPUT);
+        pinMode(TOUCH_YP, INPUT);
+
+        delayMicroseconds(1000); // delay(1);
+        a = analogRead(TOUCH_XN);
+        delayMicroseconds(1000); // delay(1);
+        c = analogRead(TOUCH_YP);
+        delayMicroseconds(1000); // delay(1);
+        b = analogRead(TOUCH_XN);
+        delayMicroseconds(1000); // delay(1);
+        d = analogRead(TOUCH_YP);
+
+        flag |= (absDiff(a, b) > 8);
+        flag |= (absDiff(c, d) > 8);
+        // z0 = (ANALOG_RESOLUTION - (c-a));
+        // Because a = TOUCH_XN non analog, remove a
+        z0 = ANALOG_RESOLUTION - c;
+    }
+    while (flag);
+}
+
 void Screen_K35_Parallel::_setBacklight(bool flag)
 {
     if (flag)   _writeRegister(SSD2119_SLEEP_MODE_REG, 0);
@@ -584,8 +813,5 @@ void Screen_K35_Parallel::_setIntensity(uint8_t intensity)
     analogWrite(_pinScreenBackLight, intensity);
 }
 
-// Touch -- Compulsory (virtual=0) method
-// -- Not supported, empty definition
-void Screen_K35_Parallel::_getRawTouch(uint16_t &x0, uint16_t &y0, uint16_t &z0) {
 
-}
+//#endif // end __LM4F120H5QR__

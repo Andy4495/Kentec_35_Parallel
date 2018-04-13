@@ -7,14 +7,32 @@
 //     Contact the author above for other uses
 //
 // Modfied by Andy4495 for use with Kentec EB-LM4F120-L35 BoosterPack with parallel interface
-// 04/08/2018
+//
+// 1.0.0 - 04/08/2018 - Andy4495 - Initial release.
+//
 // https://gitlab.com/Andy4495/Screen_K35_Parallel
-// This version continues to be licensed under CC BY-NC-SA 3.0
+// This version continues to be licensed under CC BY-NC-SA 3.0 for hobbyist and personal usage.
 // See LICENSE file at above GitLab repository
 //
 //
 
+
+// Core library - IDE-based
+#if defined(MPIDE) // chipKIT specific
+#include "WProgram.h"
+#elif defined(DIGISPARK) // Digispark specific
+#include "Arduino.h"
+#elif defined(ENERGIA) // LaunchPad, FraunchPad and StellarPad specific
 #include "Energia.h"
+#elif defined(MAPLE_IDE) // Maple specific
+#include "WProgram.h"
+#elif defined(CORE_TEENSY) // Teensy specific
+#include "WProgram.h"
+#elif defined(WIRING) // Wiring specific
+#include "Wiring.h"
+#elif defined(ARDUINO) // Arduino 1.0x and 1.5x specific
+#include "Arduino.h"
+#endif // end IDE
 
 #ifndef Screen_K35_PARALLEL_RELEASE
 ///
@@ -28,8 +46,8 @@
 /// @brief      Class for 3.5" 480x320 screen
 /// @details    Screen controllers
 /// *   LCD: SSD2119, 8-bit 8080 parallel
-/// *   touch: not supported with this library
-/// @note       The class configures the GPIOs
+/// *   touch: direct ADC, no controller
+/// @note       The class configures the GPIOs and the SPI port.
 ///
 class Screen_K35_Parallel : public LCD_screen_font {
 public:
@@ -68,8 +86,8 @@ private:
     // Write and Read
     void _writeData88(uint8_t dataHigh8, uint8_t dataLow8); // compulsory;
 
-    // Touch -- Not supported, empty definition in cpp file
-  void _getRawTouch(uint16_t &x0, uint16_t &y0, uint16_t &z0); // compulsory
+	// Touch
+    void _getRawTouch(uint16_t &x0, uint16_t &y0, uint16_t &z0); // compulsory
 
     // * Other functions specific to the screen
     // Communication, write
@@ -84,14 +102,18 @@ private:
     void _setIntensity(uint8_t intensity); // compulsory
     void _setBacklight(bool flag); // compulsory
 
+    // Touch
+    void _getOneTouch(uint8_t command8, uint8_t &a, uint8_t &b);
+
     uint8_t _pinScreenDataCommand, _pinScreenReset, _pinScreenChipSelect, _pinScreenBackLight, _pinScreenWR, _pinScreenRD;
     uint8_t _pinScreenD0, _pinScreenD1, _pinScreenD2, _pinScreenD3, _pinScreenD4, _pinScreenD5, _pinScreenD6, _pinScreenD7;
-    // These should be wrappend in an F5529 #ifdef
+#if defined(__MSP430F5529__)
     volatile uint8_t *out3;
     volatile uint8_t *out2;
     volatile uint8_t *out1;
     volatile uint8_t *out6;
     volatile uint8_t *out4;
+#endif
 
 };
 

@@ -5,6 +5,10 @@ Ported version from Energia built in library <reference>
 
 Based on SPI version of library, changed low-level interface functions.
 
+Touch functionality carried over from SPI library. I/O pin definitions updated, but touch not tested.
+
+Optimized for F5529, since that board has the most RAM of the MSP430 Launchpads supported by Energia.
+
 
 Usage
 -----
@@ -22,4 +26,5 @@ References
 ----------
 + [Kentec user guide][1]
 + [Driver chip user guide (from Kentec)][2]
-= [Rei Vilo review][3]
++ [Rei Vilo review][3]
++ LCD Screen library suite for Energia (embedded computing link, maybe try a direct link to the "special edition" version)
