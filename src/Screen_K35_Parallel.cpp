@@ -134,7 +134,7 @@
 Screen_K35_Parallel::Screen_K35_Parallel()
 {
     _pinScreenDataCommand =  9;
-    _pinScreenReset       = 16;
+//    _pinScreenReset       = 16;    // Hardwired to LaunchPad reset
     _pinScreenChipSelect  = 10;
     _pinScreenBackLight   = 40; // not connected -- DNP resistor R12 on schematic
     _pinScreenWR          =  8;
@@ -160,14 +160,14 @@ void Screen_K35_Parallel::begin()
 {
   // Default values
     digitalWrite(_pinScreenDataCommand, HIGH);
-    digitalWrite(_pinScreenReset, HIGH);
+//    digitalWrite(_pinScreenReset, HIGH);       // Hardwired to LaunchPad reset
     digitalWrite(_pinScreenChipSelect, HIGH);
     digitalWrite(_pinScreenBackLight, HIGH);
     digitalWrite(_pinScreenWR, HIGH);
     digitalWrite(_pinScreenRD, HIGH);
 
     pinMode(_pinScreenDataCommand, OUTPUT);
-    pinMode(_pinScreenReset, OUTPUT);
+//    pinMode(_pinScreenReset, OUTPUT);         // Hardwired to LaunchPad reset
     pinMode(_pinScreenChipSelect, OUTPUT);
     pinMode(_pinScreenBackLight, OUTPUT);
     pinMode(_pinScreenWR, OUTPUT);
@@ -183,9 +183,10 @@ void Screen_K35_Parallel::begin()
     pinMode(_pinScreenD7, OUTPUT);
 
     // RESET cycle
-    digitalWrite(_pinScreenReset, LOW);
-    delayMicroseconds(20); // datasheet lists 15 us min reset pulse
-    digitalWrite(_pinScreenReset, HIGH);
+    // On Parallel version, the display reset line is hard-wired to LaunchPad reset
+//    digitalWrite(_pinScreenReset, LOW);
+//    delayMicroseconds(20); // datasheet lists 15 us min reset pulse
+//    digitalWrite(_pinScreenReset, HIGH);
 
     //    //
     //    // Enter sleep mode

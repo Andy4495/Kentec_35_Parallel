@@ -1,30 +1,67 @@
-Kentec Parallel <Update with correct full name from vendor>
-====================================
+Kentec EB-LM4F120-L35 BoosterPack Library
+=============================================================================
 
-Ported version from Energia built in library <reference>
+This Energia library supports the Kentec [EB-LM4F120-L35][4] 3.5" QVGA TFT LCD BoosterPack with Parallel I/O.
 
-Based on SPI version of library, changed low-level interface functions.
+The EB-LM4F120-L35 uses the same display and controller chip as the SPI-based
+[BOOSTXL-K350QVG-S1][5] BoosterPack <reference>.
 
-Touch functionality carried over from SPI library. I/O pin definitions updated, but touch not tested.
+The parallel I/O of the LM4F120 version of the BoosterPack allows faster screen drawing with the disadvantage of requiring more I/O pins. Although the name implies that it was designed for the Stellaris ARM-based LaunchPad, it will work with MSP430-based LaunchPads that have the 40-pin BOOSTXL interface and enough RAM to support using a large display.
 
-Optimized for F5529, since that board has the most RAM of the MSP430 Launchpads supported by Energia.
+This library is optimized for use with the [MSP430F5529 LaunchPad][9], but will also work with any other Energia-supported LaunchPad with the BOOSTXL interface. Display refresh rates on boards other than the F5529 will be much slower due to the use of the generic `DigitalWrite()` for I/O control. When used with the F5529, the library uses a much faster direct register control for I/O.
 
+This library is based on the [Kentec_35_SPI library][8] which is included with Energia.
+
+The screen touch functionality was carried over from the SPI version of the library and the I/O pin number definitions were updated accordingly. However, touch functionality has not been tested with this library.
+
+Installing
+----------
+
+The files included with this library require the other components of the Kentec_35_SPI library. However, due to issues with the way that Energia manages libraries, adding support of the parallel version of the display is more complicated than just adding the new files to the existing library.
+
+First, __download__ and unzip this library and install it in your local sketchbook library directory (typically ~/Energia/libraries). Name the new folder `Kentec_35_Parallel`.
+
+Next, __copy__ the \*.cpp files and \*.h files of the Kentec_35_SPI directory from your local Energia installation (typically at ~/<energia_directory>/hardware/energia/msp430/libraries/Kentec_35_SPI) to the `Kentec_35_Parallel/src` directory that you created above.
+
+Next, __copy__ the `examples` directory to the `Kentec_35_Parallel` directory.
+
+Next, __copy__ the `ReadMe.txt` and `LCD_screen - Reference Manual.pdf` files to the `Kentec_35_Parallel` directory.
+
+Next, __delete__ the files `Kentec_35_SPI.h` and `Kentec_35_SPI.cpp` from the `Kentec_35_Parallel\src` directory.
+
+Quit and re-start Energia.
+
+The Kentec_35_Parallel library and example sketch should now be available in Energia.
 
 Usage
 -----
-_See the sketch included in the `examples` folder._
+_See the sketch included in the `examples` folder._ This example is from the original Kentec_35_SPI library. It will work with the Parallel version of the library by adding the following lines in the `Screen Selection`:
 
-Works same way as built-in SPI version.
+    #define K35_PARALLEL // EB-LM4F120-L35
 
-<Do you need to copy it to Energia libraries folder, or will it work as-is in user directory library folder?>
+and after the other screen definition pre-processor directives:
 
-<Data lines are always set to output mode, so make sure read signal is always high to avoid bus contention.>
+    #elif defined(K35_PARALLEL)
+    #include "Screen_K35_Parallel.h"
+    Screen_K35_Parallel myScreen;
 
-<Slow operation -- may try to create fast mode for F5229 direct register access>
+Otherwise, the parallel library works the same as the built-in SPI version of the library.
 
 References
 ----------
-+ [Kentec user guide][1]
-+ [Driver chip user guide (from Kentec)][2]
-+ [Rei Vilo review][3]
-+ LCD Screen library suite for Energia (embedded computing link, maybe try a direct link to the "special edition" version)
++ EB-LM4F120-L35 BoosterPack [product page][4]
++ EB-LM4F120-L35 BoosterPack [user guide][1]
++ SSD2119 driver chip [user guide][2]
++ [Review][3] of the EB-LM4F120-L35 from Rei Vilo's Embedded Computing site.
++ Kentec_35_SPI library suite [description][8] and [source][6].
++ BOOSTXL-K350QVG-S1 (SPI) [product page][7]
+
+[1]: http://www.kentecdisplay.com/uploads/soft/Products_spec/EB-LM4F120-L35_UserGuide_04.pdf
+[2]: http://www.kentecdisplay.com/uploads/soft/Datasheet/SSD2119_1.4.pdf
+[3]: https://embeddedcomputing.weebly.com/kentec-35-lcd-spi-with-touch-boosterpack.html
+[4]: http://www.kentecdisplay.com/plus/view.php?aid=71
+[5]: http://www.ti.com/tool/BOOSTXL-K350QVG-S1
+[6]: https://github.com/energia/msp430-lg-core/tree/master/libraries/Kentec_35_SPI
+[7]: http://www.ti.com/tool/BOOSTXL-K350QVG-S1
+[8]: https://embeddedcomputing.weebly.com/lcd_screen-library-suite.html
+[9]: http://www.ti.com/tool/MSP-EXP430F5529LP
