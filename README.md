@@ -8,7 +8,7 @@ The EB-LM4F120-L35 uses the same display and controller chip as the SPI-based
 
 The parallel I/O of the LM4F120 version of the BoosterPack allows faster screen drawing with the disadvantage of requiring more I/O pins. Although the name implies that it was designed for the Stellaris ARM-based LaunchPad, it will work with MSP430-based LaunchPads that have the 40-pin BOOSTXL interface and enough RAM to support using a large display.
 
-This library is optimized for use with the [MSP430F5529 LaunchPad][9], but will also work with any other Energia-supported LaunchPad with the BOOSTXL interface. Display refresh rates on boards other than the F5529 will be much slower due to the use of the generic `DigitalWrite()` for I/O control. When used with the F5529, the library uses a much faster direct register control for I/O.
+This library is optimized for use with the [MSP430F5529][9] and [MSP432P401R][10] LaunchPads, but will also work with any other Energia-supported LaunchPad with the BOOSTXL interface. Display refresh rates on boards other than the F5529 or MSP432 will be much slower due to the use of the generic `DigitalWrite()` for I/O control. When used with the F5529 or MSP432, the library uses a much faster direct register control for I/O.
 
 This library is based on the [Kentec_35_SPI library][8] which is included with Energia.
 
@@ -65,3 +65,4 @@ References
 [7]: http://www.ti.com/tool/BOOSTXL-K350QVG-S1
 [8]: https://embeddedcomputing.weebly.com/lcd_screen-library-suite.html
 [9]: http://www.ti.com/tool/MSP-EXP430F5529LP
+[10]: http://www.ti.com/tool/MSP-EXP432P401R

@@ -18,6 +18,9 @@
 
 // Library header
 #include "Screen_K35_Parallel.h"
+#if defined(__MSP432P401R__)
+#include <msp.h>
+#endif
 
 #if defined(__LM4F120H5QR__)
 #include "inc/hw_gpio.h"
@@ -296,8 +299,11 @@ void Screen_K35_Parallel::begin()
     setFontSize(0);
 
     // Touch
+    // The call to _getRawTouch() caused the code to hang when compied with MSP432
+#ifndef __MSP432P401R__
     uint16_t x0, y0, z0;
     _getRawTouch(x0, y0, z0);
+#endif
 
     // Touch calibration
     _touchTrim = TOUCH_TRIM;
@@ -408,10 +414,25 @@ void Screen_K35_Parallel::_writeData88(uint8_t dataHigh8, uint8_t dataLow8)
     *out2 |=  0x80;             // digitalWrite(_pinScreenWR, HIGH);
     *out4 |=  0x02;             // digitalWrite(_pinScreenChipSelect, HIGH);
 #else
+
+#if defined(__MSP432P401R__)
+    P6OUT |=  BIT(5);      // digitalWrite(_pinScreenDataCommand, HIGH);
+    P6OUT &= ~BIT(4);      // digitalWrite(_pinScreenChipSelect, LOW);
+    P4OUT &= ~BIT(6);      // digitalWrite(_pinScreenWR, LOW);
+    if (dataHigh8 & BIT(0)) P3OUT |= BIT(2); else P3OUT &= ~BIT(2);
+    if (dataHigh8 & BIT(1)) P3OUT |= BIT(3); else P3OUT &= ~BIT(3);
+    if (dataHigh8 & BIT(2)) P2OUT |= BIT(5); else P2OUT &= ~BIT(5);
+    if (dataHigh8 & BIT(3)) P2OUT |= BIT(4); else P2OUT &= ~BIT(4);
+    if (dataHigh8 & BIT(4)) P1OUT |= BIT(5); else P1OUT &= ~BIT(5);
+    if (dataHigh8 & BIT(5)) P6OUT |= BIT(0); else P6OUT &= ~BIT(0);
+    if (dataHigh8 & BIT(6)) P1OUT |= BIT(7); else P1OUT &= ~BIT(7);
+    if (dataHigh8 & BIT(7)) P1OUT |= BIT(6); else P1OUT &= ~BIT(6);
+    P4OUT |=  BIT(6);      // digitalWrite(_pinScreenWR, HIGH);
+    P4OUT &= ~BIT(6);      // digitalWrite(_pinScreenWR, LOW);
+#else
     digitalWrite(_pinScreenDataCommand, HIGH);                                  // HIGH = data
     digitalWrite(_pinScreenChipSelect, LOW);
     digitalWrite(_pinScreenWR, LOW);
-
     digitalWrite(_pinScreenD0,     dataHigh8  & 0x01);
     digitalWrite(_pinScreenD1, (dataHigh8>>1) & 0x01);
     digitalWrite(_pinScreenD2, (dataHigh8>>2) & 0x01);
@@ -420,10 +441,23 @@ void Screen_K35_Parallel::_writeData88(uint8_t dataHigh8, uint8_t dataLow8)
     digitalWrite(_pinScreenD5, (dataHigh8>>5) & 0x01);
     digitalWrite(_pinScreenD6, (dataHigh8>>6) & 0x01);
     digitalWrite(_pinScreenD7, (dataHigh8>>7) & 0x01);
-
     digitalWrite(_pinScreenWR, HIGH);  // Latch in the data
     digitalWrite(_pinScreenWR, LOW);   // Get ready for next byte
+#endif
+
     // Set output pins to data value - LSB
+#if defined(__MSP432P401R__)
+    if (dataLow8 & BIT(0)) P3OUT |= BIT(2); else P3OUT &= ~BIT(2);
+    if (dataLow8 & BIT(1)) P3OUT |= BIT(3); else P3OUT &= ~BIT(3);
+    if (dataLow8 & BIT(2)) P2OUT |= BIT(5); else P2OUT &= ~BIT(5);
+    if (dataLow8 & BIT(3)) P2OUT |= BIT(4); else P2OUT &= ~BIT(4);
+    if (dataLow8 & BIT(4)) P1OUT |= BIT(5); else P1OUT &= ~BIT(5);
+    if (dataLow8 & BIT(5)) P6OUT |= BIT(0); else P6OUT &= ~BIT(0);
+    if (dataLow8 & BIT(6)) P1OUT |= BIT(7); else P1OUT &= ~BIT(7);
+    if (dataLow8 & BIT(7)) P1OUT |= BIT(6); else P1OUT &= ~BIT(6);
+    P4OUT |=  BIT(6);      // digitalWrite(_pinScreenWR, HIGH);
+    P6OUT |=  BIT(4);      // digitalWrite(_pinScreenChipSelect, HIGH);
+#else
     digitalWrite(_pinScreenD0,     dataLow8  & 0x01);
     digitalWrite(_pinScreenD1, (dataLow8>>1) & 0x01);
     digitalWrite(_pinScreenD2, (dataLow8>>2) & 0x01);
@@ -432,9 +466,10 @@ void Screen_K35_Parallel::_writeData88(uint8_t dataHigh8, uint8_t dataLow8)
     digitalWrite(_pinScreenD5, (dataLow8>>5) & 0x01);
     digitalWrite(_pinScreenD6, (dataLow8>>6) & 0x01);
     digitalWrite(_pinScreenD7, (dataLow8>>7) & 0x01);
-
     digitalWrite(_pinScreenWR, HIGH);  // Latch in the data
     digitalWrite(_pinScreenChipSelect, HIGH);
+#endif
+
 #endif
 }
 
@@ -466,12 +501,26 @@ void Screen_K35_Parallel::_writeCommand16(uint16_t command16)
     *out2 |=  0x80;             // digitalWrite(_pinScreenWR, HIGH);
     *out4 |=  0x02;             // digitalWrite(_pinScreenChipSelect, HIGH);
 #else
+
+    // Set output pins to data value
+#if defined(__MSP432P401R__)
+    P6OUT &= ~BIT(5);      // digitalWrite(_pinScreenDataCommand, LOW);
+    P6OUT &= ~BIT(4);      // digitalWrite(_pinScreenChipSelect, LOW);
+    P4OUT &= ~BIT(6);      // digitalWrite(_pinScreenWR, LOW);
+    if (command16 & BIT(0)) P3OUT |= BIT(2); else P3OUT &= ~BIT(2);
+    if (command16 & BIT(1)) P3OUT |= BIT(3); else P3OUT &= ~BIT(3);
+    if (command16 & BIT(2)) P2OUT |= BIT(5); else P2OUT &= ~BIT(5);
+    if (command16 & BIT(3)) P2OUT |= BIT(4); else P2OUT &= ~BIT(4);
+    if (command16 & BIT(4)) P1OUT |= BIT(5); else P1OUT &= ~BIT(5);
+    if (command16 & BIT(5)) P6OUT |= BIT(0); else P6OUT &= ~BIT(0);
+    if (command16 & BIT(6)) P1OUT |= BIT(7); else P1OUT &= ~BIT(7);
+    if (command16 & BIT(7)) P1OUT |= BIT(6); else P1OUT &= ~BIT(6);
+    P4OUT |=  BIT(6);      // digitalWrite(_pinScreenWR, HIGH);
+    P6OUT |=  BIT(4);      // digitalWrite(_pinScreenChipSelect, HIGH);
+#else
     digitalWrite(_pinScreenDataCommand, LOW);                                   // LOW = command
     digitalWrite(_pinScreenChipSelect, LOW);
     digitalWrite(_pinScreenWR, LOW);
-
-    // Set output pins to data value
-    digitalWrite(_pinScreenD0,     command16  & 0x01);
     digitalWrite(_pinScreenD1, (command16>>1) & 0x01);
     digitalWrite(_pinScreenD2, (command16>>2) & 0x01);
     digitalWrite(_pinScreenD3, (command16>>3) & 0x01);
@@ -479,9 +528,10 @@ void Screen_K35_Parallel::_writeCommand16(uint16_t command16)
     digitalWrite(_pinScreenD5, (command16>>5) & 0x01);
     digitalWrite(_pinScreenD6, (command16>>6) & 0x01);
     digitalWrite(_pinScreenD7, (command16>>7) & 0x01);
-
     digitalWrite(_pinScreenWR, HIGH);  // Latch in the data
     digitalWrite(_pinScreenChipSelect, HIGH);
+#endif
+
 #endif
 }
 
@@ -514,11 +564,26 @@ void Screen_K35_Parallel::_writeCommandAndData16(uint16_t command16, uint8_t dat
     *out2 |=  0x80;             // digitalWrite(_pinScreenWR, HIGH);
     *out4 |=  0x02;             // digitalWrite(_pinScreenChipSelect, HIGH);
 #else
+
+    // Set output pins to data value
+#if defined(__MSP432P401R__)
+    P6OUT &= ~BIT(5);      // digitalWrite(_pinScreenDataCommand, LOW);
+    P6OUT &= ~BIT(4);      // digitalWrite(_pinScreenChipSelect, LOW);
+    P4OUT &= ~BIT(6);      // digitalWrite(_pinScreenWR, LOW);
+    if (command16 & BIT(0)) P3OUT |= BIT(2); else P3OUT &= ~BIT(2);
+    if (command16 & BIT(1)) P3OUT |= BIT(3); else P3OUT &= ~BIT(3);
+    if (command16 & BIT(2)) P2OUT |= BIT(5); else P2OUT &= ~BIT(5);
+    if (command16 & BIT(3)) P2OUT |= BIT(4); else P2OUT &= ~BIT(4);
+    if (command16 & BIT(4)) P1OUT |= BIT(5); else P1OUT &= ~BIT(5);
+    if (command16 & BIT(5)) P6OUT |= BIT(0); else P6OUT &= ~BIT(0);
+    if (command16 & BIT(6)) P1OUT |= BIT(7); else P1OUT &= ~BIT(7);
+    if (command16 & BIT(7)) P1OUT |= BIT(6); else P1OUT &= ~BIT(6);
+    P4OUT |=  BIT(6);      // digitalWrite(_pinScreenWR, HIGH);
+    P6OUT |=  BIT(4);      // digitalWrite(_pinScreenChipSelect, HIGH);
+#else
     digitalWrite(_pinScreenDataCommand, LOW);                                   // LOW = command
     digitalWrite(_pinScreenChipSelect, LOW);
     digitalWrite(_pinScreenWR, LOW);
-
-    // Set output pins to data value
     digitalWrite(_pinScreenD0,     command16  & 0x01);
     digitalWrite(_pinScreenD1, (command16>>1) & 0x01);
     digitalWrite(_pinScreenD2, (command16>>2) & 0x01);
@@ -527,9 +592,10 @@ void Screen_K35_Parallel::_writeCommandAndData16(uint16_t command16, uint8_t dat
     digitalWrite(_pinScreenD5, (command16>>5) & 0x01);
     digitalWrite(_pinScreenD6, (command16>>6) & 0x01);
     digitalWrite(_pinScreenD7, (command16>>7) & 0x01);
-
     digitalWrite(_pinScreenWR, HIGH);  // Latch in the data
     digitalWrite(_pinScreenChipSelect, HIGH);
+#endif
+
 #endif
 #ifdef F5529_DIRECT_IO
     *out4 |=  0x04;             // digitalWrite(_pinScreenDataCommand, HIGH)
@@ -566,10 +632,25 @@ void Screen_K35_Parallel::_writeCommandAndData16(uint16_t command16, uint8_t dat
     *out2 |=  0x80;             // digitalWrite(_pinScreenWR, HIGH);
     *out4 |=  0x02;             // digitalWrite(_pinScreenChipSelect, HIGH);
 #else
+
+#if defined(__MSP432P401R__)
+    P6OUT |=  BIT(5);      // digitalWrite(_pinScreenDataCommand, HIGH);
+    P6OUT &= ~BIT(4);      // digitalWrite(_pinScreenChipSelect, LOW);
+    P4OUT &= ~BIT(6);      // digitalWrite(_pinScreenWR, LOW);
+    if (dataHigh8 & BIT(0)) P3OUT |= BIT(2); else P3OUT &= ~BIT(2);
+    if (dataHigh8 & BIT(1)) P3OUT |= BIT(3); else P3OUT &= ~BIT(3);
+    if (dataHigh8 & BIT(2)) P2OUT |= BIT(5); else P2OUT &= ~BIT(5);
+    if (dataHigh8 & BIT(3)) P2OUT |= BIT(4); else P2OUT &= ~BIT(4);
+    if (dataHigh8 & BIT(4)) P1OUT |= BIT(5); else P1OUT &= ~BIT(5);
+    if (dataHigh8 & BIT(5)) P6OUT |= BIT(0); else P6OUT &= ~BIT(0);
+    if (dataHigh8 & BIT(6)) P1OUT |= BIT(7); else P1OUT &= ~BIT(7);
+    if (dataHigh8 & BIT(7)) P1OUT |= BIT(6); else P1OUT &= ~BIT(6);
+    P4OUT |=  BIT(6);      // digitalWrite(_pinScreenWR, HIGH);
+    P4OUT &= ~BIT(6);      // digitalWrite(_pinScreenWR, LOW);
+#else
     digitalWrite(_pinScreenDataCommand, HIGH);                                  // HIGH = data
     digitalWrite(_pinScreenChipSelect, LOW);
     digitalWrite(_pinScreenWR, LOW);
-
     digitalWrite(_pinScreenD0,     dataHigh8  & 0x01);
     digitalWrite(_pinScreenD1, (dataHigh8>>1) & 0x01);
     digitalWrite(_pinScreenD2, (dataHigh8>>2) & 0x01);
@@ -578,10 +659,23 @@ void Screen_K35_Parallel::_writeCommandAndData16(uint16_t command16, uint8_t dat
     digitalWrite(_pinScreenD5, (dataHigh8>>5) & 0x01);
     digitalWrite(_pinScreenD6, (dataHigh8>>6) & 0x01);
     digitalWrite(_pinScreenD7, (dataHigh8>>7) & 0x01);
-
     digitalWrite(_pinScreenWR, HIGH);  // Latch in the data
     digitalWrite(_pinScreenWR, LOW);   // Get ready for next byte
+#endif
+
     // Set output pins to data value - LSB
+#if defined(__MSP432P401R__)
+    if (dataLow8 & BIT(0)) P3OUT |= BIT(2); else P3OUT &= ~BIT(2);
+    if (dataLow8 & BIT(1)) P3OUT |= BIT(3); else P3OUT &= ~BIT(3);
+    if (dataLow8 & BIT(2)) P2OUT |= BIT(5); else P2OUT &= ~BIT(5);
+    if (dataLow8 & BIT(3)) P2OUT |= BIT(4); else P2OUT &= ~BIT(4);
+    if (dataLow8 & BIT(4)) P1OUT |= BIT(5); else P1OUT &= ~BIT(5);
+    if (dataLow8 & BIT(5)) P6OUT |= BIT(0); else P6OUT &= ~BIT(0);
+    if (dataLow8 & BIT(6)) P1OUT |= BIT(7); else P1OUT &= ~BIT(7);
+    if (dataLow8 & BIT(7)) P1OUT |= BIT(6); else P1OUT &= ~BIT(6);
+    P4OUT |=  BIT(6);      // digitalWrite(_pinScreenWR, HIGH);
+    P6OUT |=  BIT(4);      // digitalWrite(_pinScreenChipSelect, HIGH);
+#else
     digitalWrite(_pinScreenD0,     dataLow8  & 0x01);
     digitalWrite(_pinScreenD1, (dataLow8>>1) & 0x01);
     digitalWrite(_pinScreenD2, (dataLow8>>2) & 0x01);
@@ -590,9 +684,10 @@ void Screen_K35_Parallel::_writeCommandAndData16(uint16_t command16, uint8_t dat
     digitalWrite(_pinScreenD5, (dataLow8>>5) & 0x01);
     digitalWrite(_pinScreenD6, (dataLow8>>6) & 0x01);
     digitalWrite(_pinScreenD7, (dataLow8>>7) & 0x01);
-
     digitalWrite(_pinScreenWR, HIGH);  // Latch in the data
     digitalWrite(_pinScreenChipSelect, HIGH);
+#endif
+
 #endif
 }
 
