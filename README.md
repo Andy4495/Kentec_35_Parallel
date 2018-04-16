@@ -58,7 +58,7 @@ References
 
 [1]: http://www.kentecdisplay.com/uploads/soft/Products_spec/EB-LM4F120-L35_UserGuide_04.pdf
 [2]: http://www.kentecdisplay.com/uploads/soft/Datasheet/SSD2119_1.4.pdf
-[3]: https://embeddedcomputing.weebly.com/kentec-35-lcd-spi-with-touch-boosterpack.html
+[3]: https://embeddedcomputing.weebly.com/kentec-35-lcd-with-touch-boosterpack-for-stellaris.html
 [4]: http://www.kentecdisplay.com/plus/view.php?aid=71
 [5]: http://www.ti.com/tool/BOOSTXL-K350QVG-S1
 [6]: https://github.com/energia/msp430-lg-core/tree/master/libraries/Kentec_35_SPI
