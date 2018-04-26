@@ -10,7 +10,7 @@
 //
 // 1.0.0 - 04/08/2018 - Andy4495 - Initial release.
 //
-// https://gitlab.com/Andy4495/Screen_K35_Parallel
+// https://gitlab.com/Andy4495/Kentec_35_Parallel
 // This version continues to be licensed under CC BY-NC-SA 3.0 for hobbyist and personal usage.
 // See LICENSE file at above GitLab repository
 //
