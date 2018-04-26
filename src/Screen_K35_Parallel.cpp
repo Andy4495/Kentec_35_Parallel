@@ -433,14 +433,14 @@ void Screen_K35_Parallel::_writeData88(uint8_t dataHigh8, uint8_t dataLow8)
     digitalWrite(_pinScreenDataCommand, HIGH);                                  // HIGH = data
     digitalWrite(_pinScreenChipSelect, LOW);
     digitalWrite(_pinScreenWR, LOW);
-    digitalWrite(_pinScreenD0,     dataHigh8  & 0x01);
-    digitalWrite(_pinScreenD1, (dataHigh8>>1) & 0x01);
-    digitalWrite(_pinScreenD2, (dataHigh8>>2) & 0x01);
-    digitalWrite(_pinScreenD3, (dataHigh8>>3) & 0x01);
-    digitalWrite(_pinScreenD4, (dataHigh8>>4) & 0x01);
-    digitalWrite(_pinScreenD5, (dataHigh8>>5) & 0x01);
-    digitalWrite(_pinScreenD6, (dataHigh8>>6) & 0x01);
-    digitalWrite(_pinScreenD7, (dataHigh8>>7) & 0x01);
+    digitalWrite(_pinScreenD0, dataHigh8 & 0x01);
+    digitalWrite(_pinScreenD1, dataHigh8 & 0x02);
+    digitalWrite(_pinScreenD2, dataHigh8 & 0x04);
+    digitalWrite(_pinScreenD3, dataHigh8 & 0x08);
+    digitalWrite(_pinScreenD4, dataHigh8 & 0x10);
+    digitalWrite(_pinScreenD5, dataHigh8 & 0x20);
+    digitalWrite(_pinScreenD6, dataHigh8 & 0x40);
+    digitalWrite(_pinScreenD7, dataHigh8 & 0x80);
     digitalWrite(_pinScreenWR, HIGH);  // Latch in the data
     digitalWrite(_pinScreenWR, LOW);   // Get ready for next byte
 #endif
@@ -458,14 +458,14 @@ void Screen_K35_Parallel::_writeData88(uint8_t dataHigh8, uint8_t dataLow8)
     P4OUT |=  BIT(6);      // digitalWrite(_pinScreenWR, HIGH);
     P6OUT |=  BIT(4);      // digitalWrite(_pinScreenChipSelect, HIGH);
 #else
-    digitalWrite(_pinScreenD0,     dataLow8  & 0x01);
-    digitalWrite(_pinScreenD1, (dataLow8>>1) & 0x01);
-    digitalWrite(_pinScreenD2, (dataLow8>>2) & 0x01);
-    digitalWrite(_pinScreenD3, (dataLow8>>3) & 0x01);
-    digitalWrite(_pinScreenD4, (dataLow8>>4) & 0x01);
-    digitalWrite(_pinScreenD5, (dataLow8>>5) & 0x01);
-    digitalWrite(_pinScreenD6, (dataLow8>>6) & 0x01);
-    digitalWrite(_pinScreenD7, (dataLow8>>7) & 0x01);
+    digitalWrite(_pinScreenD0, dataLow8 & 0x01);
+    digitalWrite(_pinScreenD1, dataLow8 & 0x02);
+    digitalWrite(_pinScreenD2, dataLow8 & 0x04);
+    digitalWrite(_pinScreenD3, dataLow8 & 0x08);
+    digitalWrite(_pinScreenD4, dataLow8 & 0x10);
+    digitalWrite(_pinScreenD5, dataLow8 & 0x20);
+    digitalWrite(_pinScreenD6, dataLow8 & 0x40);
+    digitalWrite(_pinScreenD7, dataLow8 & 0x80);
     digitalWrite(_pinScreenWR, HIGH);  // Latch in the data
     digitalWrite(_pinScreenChipSelect, HIGH);
 #endif
@@ -521,13 +521,14 @@ void Screen_K35_Parallel::_writeCommand16(uint16_t command16)
     digitalWrite(_pinScreenDataCommand, LOW);                                   // LOW = command
     digitalWrite(_pinScreenChipSelect, LOW);
     digitalWrite(_pinScreenWR, LOW);
-    digitalWrite(_pinScreenD1, (command16>>1) & 0x01);
-    digitalWrite(_pinScreenD2, (command16>>2) & 0x01);
-    digitalWrite(_pinScreenD3, (command16>>3) & 0x01);
-    digitalWrite(_pinScreenD4, (command16>>4) & 0x01);
-    digitalWrite(_pinScreenD5, (command16>>5) & 0x01);
-    digitalWrite(_pinScreenD6, (command16>>6) & 0x01);
-    digitalWrite(_pinScreenD7, (command16>>7) & 0x01);
+    digitalWrite(_pinScreenD0, command16 & 0x01);
+    digitalWrite(_pinScreenD1, command16 & 0x02);
+    digitalWrite(_pinScreenD2, command16 & 0x04);
+    digitalWrite(_pinScreenD3, command16 & 0x08);
+    digitalWrite(_pinScreenD4, command16 & 0x10);
+    digitalWrite(_pinScreenD5, command16 & 0x20);
+    digitalWrite(_pinScreenD6, command16 & 0x40);
+    digitalWrite(_pinScreenD7, command16 & 0x80);
     digitalWrite(_pinScreenWR, HIGH);  // Latch in the data
     digitalWrite(_pinScreenChipSelect, HIGH);
 #endif
@@ -584,14 +585,14 @@ void Screen_K35_Parallel::_writeCommandAndData16(uint16_t command16, uint8_t dat
     digitalWrite(_pinScreenDataCommand, LOW);                                   // LOW = command
     digitalWrite(_pinScreenChipSelect, LOW);
     digitalWrite(_pinScreenWR, LOW);
-    digitalWrite(_pinScreenD0,     command16  & 0x01);
-    digitalWrite(_pinScreenD1, (command16>>1) & 0x01);
-    digitalWrite(_pinScreenD2, (command16>>2) & 0x01);
-    digitalWrite(_pinScreenD3, (command16>>3) & 0x01);
-    digitalWrite(_pinScreenD4, (command16>>4) & 0x01);
-    digitalWrite(_pinScreenD5, (command16>>5) & 0x01);
-    digitalWrite(_pinScreenD6, (command16>>6) & 0x01);
-    digitalWrite(_pinScreenD7, (command16>>7) & 0x01);
+    digitalWrite(_pinScreenD0, command16 & 0x01);
+    digitalWrite(_pinScreenD1, command16 & 0x02);
+    digitalWrite(_pinScreenD2, command16 & 0x04);
+    digitalWrite(_pinScreenD3, command16 & 0x08);
+    digitalWrite(_pinScreenD4, command16 & 0x10);
+    digitalWrite(_pinScreenD5, command16 & 0x20);
+    digitalWrite(_pinScreenD6, command16 & 0x40);
+    digitalWrite(_pinScreenD7, command16 & 0x80);
     digitalWrite(_pinScreenWR, HIGH);  // Latch in the data
     digitalWrite(_pinScreenChipSelect, HIGH);
 #endif
@@ -651,14 +652,14 @@ void Screen_K35_Parallel::_writeCommandAndData16(uint16_t command16, uint8_t dat
     digitalWrite(_pinScreenDataCommand, HIGH);                                  // HIGH = data
     digitalWrite(_pinScreenChipSelect, LOW);
     digitalWrite(_pinScreenWR, LOW);
-    digitalWrite(_pinScreenD0,     dataHigh8  & 0x01);
-    digitalWrite(_pinScreenD1, (dataHigh8>>1) & 0x01);
-    digitalWrite(_pinScreenD2, (dataHigh8>>2) & 0x01);
-    digitalWrite(_pinScreenD3, (dataHigh8>>3) & 0x01);
-    digitalWrite(_pinScreenD4, (dataHigh8>>4) & 0x01);
-    digitalWrite(_pinScreenD5, (dataHigh8>>5) & 0x01);
-    digitalWrite(_pinScreenD6, (dataHigh8>>6) & 0x01);
-    digitalWrite(_pinScreenD7, (dataHigh8>>7) & 0x01);
+    digitalWrite(_pinScreenD0, dataHigh8 & 0x01);
+    digitalWrite(_pinScreenD1, dataHigh8 & 0x02);
+    digitalWrite(_pinScreenD2, dataHigh8 & 0x04);
+    digitalWrite(_pinScreenD3, dataHigh8 & 0x08);
+    digitalWrite(_pinScreenD4, dataHigh8 & 0x10);
+    digitalWrite(_pinScreenD5, dataHigh8 & 0x20);
+    digitalWrite(_pinScreenD6, dataHigh8 & 0x40);
+    digitalWrite(_pinScreenD7, dataHigh8 & 0x80);
     digitalWrite(_pinScreenWR, HIGH);  // Latch in the data
     digitalWrite(_pinScreenWR, LOW);   // Get ready for next byte
 #endif
@@ -676,14 +677,14 @@ void Screen_K35_Parallel::_writeCommandAndData16(uint16_t command16, uint8_t dat
     P4OUT |=  BIT(6);      // digitalWrite(_pinScreenWR, HIGH);
     P6OUT |=  BIT(4);      // digitalWrite(_pinScreenChipSelect, HIGH);
 #else
-    digitalWrite(_pinScreenD0,     dataLow8  & 0x01);
-    digitalWrite(_pinScreenD1, (dataLow8>>1) & 0x01);
-    digitalWrite(_pinScreenD2, (dataLow8>>2) & 0x01);
-    digitalWrite(_pinScreenD3, (dataLow8>>3) & 0x01);
-    digitalWrite(_pinScreenD4, (dataLow8>>4) & 0x01);
-    digitalWrite(_pinScreenD5, (dataLow8>>5) & 0x01);
-    digitalWrite(_pinScreenD6, (dataLow8>>6) & 0x01);
-    digitalWrite(_pinScreenD7, (dataLow8>>7) & 0x01);
+    digitalWrite(_pinScreenD0, dataLow8 & 0x01);
+    digitalWrite(_pinScreenD1, dataLow8 & 0x02);
+    digitalWrite(_pinScreenD2, dataLow8 & 0x04);
+    digitalWrite(_pinScreenD3, dataLow8 & 0x08);
+    digitalWrite(_pinScreenD4, dataLow8 & 0x10);
+    digitalWrite(_pinScreenD5, dataLow8 & 0x20);
+    digitalWrite(_pinScreenD6, dataLow8 & 0x40);
+    digitalWrite(_pinScreenD7, dataLow8 & 0x80);
     digitalWrite(_pinScreenWR, HIGH);  // Latch in the data
     digitalWrite(_pinScreenChipSelect, HIGH);
 #endif
