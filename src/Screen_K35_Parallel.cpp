@@ -9,6 +9,7 @@
 // Modfied by Andy4495 for use with Kentec EB-LM4F120-L35 BoosterPack with parallel interface
 //
 // 1.0.0 - 04/08/2018 - Andy4495 - Initial release.
+// 1.1.0 - 05/09/2018 - Andy4495 - Add support for custom F5529 interface board.
 //
 // https://gitlab.com/Andy4495/Kentec_35_Parallel
 // This version continues to be licensed under CC BY-NC-SA 3.0 for hobbyist and personal usage.
@@ -103,10 +104,7 @@
 /// @{
 
 #define TOUCH_TRIM  0x10 ///< Touch threshold
-#define TOUCH_XP 5  // Analog pin
-#define TOUCH_YP 6  // Analog pin
-#define TOUCH_XN 12
-#define TOUCH_YN 11
+
 
 /// @}
 
@@ -134,12 +132,12 @@
 
 
 // Code
-Screen_K35_Parallel::Screen_K35_Parallel()
+Screen_K35_Parallel::Screen_K35_Parallel(uint8_t interface_board, uint8_t touch_feature)
 {
     _pinScreenDataCommand =  9;
 //    _pinScreenReset       = 16;    // Hardwired to LaunchPad reset
     _pinScreenChipSelect  = 10;
-    _pinScreenBackLight   = 40; // not connected -- DNP resistor R12 on schematic
+//    _pinScreenBackLight   = 40; // not connected -- DNP resistor R12 on schematic
     _pinScreenWR          =  8;
     _pinScreenRD          = 13;
     _pinScreenD0          =  3;
@@ -150,12 +148,38 @@ Screen_K35_Parallel::Screen_K35_Parallel()
     _pinScreenD5          =  2;
     _pinScreenD6          = 14;
     _pinScreenD7          = 15;
+    TOUCH_XP              =  5;  // Analog pin
+    TOUCH_YP              =  6;  // Analog pin
+    TOUCH_XN              = 12;
+    TOUCH_YN              = 11;
+    _touch_feature        = touch_feature;
 #ifdef F5529_DIRECT_IO
     out3 = (volatile uint8_t *)(P3_BASE+OFS_P3OUT);
     out2 = (volatile uint8_t *)(P2_BASE+OFS_P2OUT);
     out1 = (volatile uint8_t *)(P1_BASE+OFS_P1OUT);
     out6 = (volatile uint8_t *)(P6_BASE+OFS_P6OUT);
     out4 = (volatile uint8_t *)(P4_BASE+OFS_P4OUT);
+    interface_board_installed = interface_board;
+    if (interface_board_installed == F5529_INTERFACE_BOARD_INSTALLED) {
+      _pinScreenDataCommand = 37;
+  //    _pinScreenReset       = 16;    // Hardwired to LaunchPad reset
+      _pinScreenChipSelect  = 36;
+//      _pinScreenBackLight   = 40; // not connected -- DNP resistor R12 on schematic
+      _pinScreenWR          = 38;
+      _pinScreenRD          = 13;   // Recommended pin location for interface board
+      _pinScreenD0          = 23;
+      _pinScreenD1          = 24;
+      _pinScreenD2          = 25;
+      _pinScreenD3          = 26; // Note that this pin requires BOOST-XL support
+      _pinScreenD4          = 27;
+      _pinScreenD5          = 30;
+      _pinScreenD6          = 29;
+      _pinScreenD7          = 32;
+      TOUCH_XP              =  2;  // Analog pin
+      TOUCH_YP              =  6;  // Analog pin
+      TOUCH_XN              = 12;
+      TOUCH_YN              = 11;
+    }
 #endif
 }
 
@@ -165,14 +189,14 @@ void Screen_K35_Parallel::begin()
     digitalWrite(_pinScreenDataCommand, HIGH);
 //    digitalWrite(_pinScreenReset, HIGH);       // Hardwired to LaunchPad reset
     digitalWrite(_pinScreenChipSelect, HIGH);
-    digitalWrite(_pinScreenBackLight, HIGH);
+//    digitalWrite(_pinScreenBackLight, HIGH);   // Resistor R12 is DNP on schematic
     digitalWrite(_pinScreenWR, HIGH);
     digitalWrite(_pinScreenRD, HIGH);
 
     pinMode(_pinScreenDataCommand, OUTPUT);
 //    pinMode(_pinScreenReset, OUTPUT);         // Hardwired to LaunchPad reset
     pinMode(_pinScreenChipSelect, OUTPUT);
-    pinMode(_pinScreenBackLight, OUTPUT);
+//    pinMode(_pinScreenBackLight, OUTPUT);     // Resistor R12 is DNP on schematic
     pinMode(_pinScreenWR, OUTPUT);
     pinMode(_pinScreenRD, OUTPUT);
 
@@ -300,9 +324,12 @@ void Screen_K35_Parallel::begin()
 
     // Touch
     // The call to _getRawTouch() caused the code to hang when compied with MSP432
+    // The interface board does not directly connect the TOUCH pins to LaunchPad
 #ifndef __MSP432P401R__
-    uint16_t x0, y0, z0;
-    _getRawTouch(x0, y0, z0);
+    if (_touch_feature == TOUCH_ENABLED) {
+      uint16_t x0, y0, z0;
+      _getRawTouch(x0, y0, z0);
+    }
 #endif
 
     // Touch calibration
@@ -380,6 +407,43 @@ void Screen_K35_Parallel::_writeData16(uint16_t data16)
 void Screen_K35_Parallel::_writeData88(uint8_t dataHigh8, uint8_t dataLow8)
 {
 #ifdef F5529_DIRECT_IO
+  if (interface_board_installed == F5529_INTERFACE_BOARD_INSTALLED) {
+    // digitalWrite(_pinScreenDataCommand, HIGH)
+    // digitalWrite(_pinScreenChipSelect, LOW);
+    // digitalWrite(_pinScreenWR, LOW);
+    *out1 |=  0x10;
+    *out1 &= ~0x28;
+
+    // Clear the IO Port bits first, then only set bits if needed
+    *out6 &= ~0x1f; // D4 - D0
+    *out3 &= ~0xe0; // D7 - D5
+
+    // Only need logic to set the IO bits here, since they were all cleared above
+    // When using the custom interface board, the data bit positions match the
+    // I/O port bit positiongs, so no comparison needed; just OR the bits.
+    *out6 |= dataHigh8 & 0x1f;
+    *out3 |= dataHigh8 & 0xe0;
+
+    // digitalWrite(_pinScreenWR, HIGH);
+    // digitalWrite(_pinScreenWR, LOW);
+    *out1 |=  0x20;
+    *out1 &= ~0x20;
+
+    // Clear the IO Port bits first, then only set bits if needed
+    *out6 &= ~0x1f; // D4 - D0
+    *out3 &= ~0xe0; // D7 - D5
+
+    // Only need logic to set the IO bits here, since they were all cleared above
+    // When using the custom interface board, the data bit positions match the
+    // I/O port bit positiongs, so no comparison needed; just OR the bits.
+    *out6 |= dataLow8 & 0x1f;
+    *out3 |= dataLow8 & 0xe0;
+
+    // digitalWrite(_pinScreenWR, HIGH);
+    // digitalWrite(_pinScreenChipSelect, HIGH);
+    *out1 |= 0x28;
+  }
+  else {
     *out4 |=  0x04;             // digitalWrite(_pinScreenDataCommand, HIGH)
     *out4 &= ~0x02;             // digitalWrite(_pinScreenChipSelect, LOW);
     *out2 &= ~0x80;             // digitalWrite(_pinScreenWR, LOW);
@@ -413,6 +477,7 @@ void Screen_K35_Parallel::_writeData88(uint8_t dataHigh8, uint8_t dataLow8)
 
     *out2 |=  0x80;             // digitalWrite(_pinScreenWR, HIGH);
     *out4 |=  0x02;             // digitalWrite(_pinScreenChipSelect, HIGH);
+  }
 #else
 
 #if defined(__MSP432P401R__)
@@ -482,6 +547,27 @@ void Screen_K35_Parallel::_writeData88(uint8_t dataHigh8, uint8_t dataLow8)
 void Screen_K35_Parallel::_writeCommand16(uint16_t command16)
 {
 #ifdef F5529_DIRECT_IO
+  if (interface_board_installed == F5529_INTERFACE_BOARD_INSTALLED) {
+    // digitalWrite(_pinScreenDataCommand, LOW)
+    // digitalWrite(_pinScreenChipSelect, LOW);
+    // digitalWrite(_pinScreenWR, LOW);
+    *out1 &= ~0x38;
+
+    // Clear the IO Port bits first, then only set bits if needed
+    *out6 &= ~0x1f; // D4 - D0
+    *out3 &= ~0xe0; // D7 - D5
+
+    // Only need logic to set the IO bits here, since they were all cleared above
+    // When using the custom interface board, the data bit positions match the
+    // I/O port bit positiongs, so no comparison needed; just OR the bits.
+    *out6 |= command16 & 0x1f;
+    *out3 |= command16 & 0xe0;
+
+    // digitalWrite(_pinScreenWR, HIGH);
+    // digitalWrite(_pinScreenChipSelect, HIGH);
+    *out1 |= 0x28;
+  }
+  else {
     *out4 &= ~0x04;             // digitalWrite(_pinScreenDataCommand, LOW)
     *out4 &= ~0x02;             // digitalWrite(_pinScreenChipSelect, LOW);
     *out2 &= ~0x80;             // digitalWrite(_pinScreenWR, LOW);
@@ -500,6 +586,7 @@ void Screen_K35_Parallel::_writeCommand16(uint16_t command16)
 
     *out2 |=  0x80;             // digitalWrite(_pinScreenWR, HIGH);
     *out4 |=  0x02;             // digitalWrite(_pinScreenChipSelect, HIGH);
+  }
 #else
 
     // Set output pins to data value
@@ -546,6 +633,27 @@ void Screen_K35_Parallel::_writeCommand16(uint16_t command16)
 void Screen_K35_Parallel::_writeCommandAndData16(uint16_t command16, uint8_t dataHigh8, uint8_t dataLow8)
 {
 #ifdef F5529_DIRECT_IO
+  if (interface_board_installed == F5529_INTERFACE_BOARD_INSTALLED) {
+    // digitalWrite(_pinScreenDataCommand, LOW)
+    // digitalWrite(_pinScreenChipSelect, LOW);
+    // digitalWrite(_pinScreenWR, LOW);
+    *out1 &= ~0x38;
+
+    // Clear the IO Port bits first, then only set bits if needed
+    *out6 &= ~0x1f; // D4 - D0
+    *out3 &= ~0xe0; // D7 - D5
+
+    // Only need logic to set the IO bits here, since they were all cleared above
+    // When using the custom interface board, the data bit positions match the
+    // I/O port bit positiongs, so no comparison needed; just OR the bits.
+    *out6 |= command16 & 0x1f;
+    *out3 |= command16 & 0xe0;
+
+    // digitalWrite(_pinScreenWR, HIGH);
+    // digitalWrite(_pinScreenChipSelect, HIGH);
+    *out1 |= 0x28;
+  }
+  else {
     *out4 &= ~0x04;             // digitalWrite(_pinScreenDataCommand, LOW)
     *out4 &= ~0x02;             // digitalWrite(_pinScreenChipSelect, LOW);
     *out2 &= ~0x80;             // digitalWrite(_pinScreenWR, LOW);
@@ -564,6 +672,7 @@ void Screen_K35_Parallel::_writeCommandAndData16(uint16_t command16, uint8_t dat
 
     *out2 |=  0x80;             // digitalWrite(_pinScreenWR, HIGH);
     *out4 |=  0x02;             // digitalWrite(_pinScreenChipSelect, HIGH);
+  }
 #else
 
     // Set output pins to data value
@@ -599,6 +708,43 @@ void Screen_K35_Parallel::_writeCommandAndData16(uint16_t command16, uint8_t dat
 
 #endif
 #ifdef F5529_DIRECT_IO
+  if (interface_board_installed == F5529_INTERFACE_BOARD_INSTALLED) {
+    // digitalWrite(_pinScreenDataCommand, HIGH)
+    // digitalWrite(_pinScreenChipSelect, LOW);
+    // digitalWrite(_pinScreenWR, LOW);
+    *out1 |=  0x10;
+    *out1 &= ~0x28;
+
+    // Clear the IO Port bits first, then only set bits if needed
+    *out6 &= ~0x1f; // D4 - D0
+    *out3 &= ~0xe0; // D7 - D5
+
+    // Only need logic to set the IO bits here, since they were all cleared above
+    // When using the custom interface board, the data bit positions match the
+    // I/O port bit positiongs, so no comparison needed; just OR the bits.
+    *out6 |= dataHigh8 & 0x1f;
+    *out3 |= dataHigh8 & 0xe0;
+
+    // digitalWrite(_pinScreenWR, HIGH);
+    // digitalWrite(_pinScreenWR, LOW);
+    *out1 |=  0x20;
+    *out1 &= ~0x20;
+
+    // Clear the IO Port bits first, then only set bits if needed
+    *out6 &= ~0x1f; // D4 - D0
+    *out3 &= ~0xe0; // D7 - D5
+
+    // Only need logic to set the IO bits here, since they were all cleared above
+    // When using the custom interface board, the data bit positions match the
+    // I/O port bit positiongs, so no comparison needed; just OR the bits.
+    *out6 |= dataLow8 & 0x1f;
+    *out3 |= dataLow8 & 0xe0;
+
+    // digitalWrite(_pinScreenWR, HIGH);
+    // digitalWrite(_pinScreenChipSelect, HIGH);
+    *out1 |= 0x28;
+  }
+  else {
     *out4 |=  0x04;             // digitalWrite(_pinScreenDataCommand, HIGH)
     *out4 &= ~0x02;             // digitalWrite(_pinScreenChipSelect, LOW);
     *out2 &= ~0x80;             // digitalWrite(_pinScreenWR, LOW);
@@ -632,6 +778,7 @@ void Screen_K35_Parallel::_writeCommandAndData16(uint16_t command16, uint8_t dat
 
     *out2 |=  0x80;             // digitalWrite(_pinScreenWR, HIGH);
     *out4 |=  0x02;             // digitalWrite(_pinScreenChipSelect, HIGH);
+  }
 #else
 
 #if defined(__MSP432P401R__)

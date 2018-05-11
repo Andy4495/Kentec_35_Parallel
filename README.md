@@ -47,6 +47,23 @@ and after the other screen definition pre-processor directives:
 
 Otherwise, the parallel library works the same as the built-in SPI version of the library.
 
+Specialized Interface Board
+---------------------------
+I created a custom interface board to change the mapping of the pins between the Kentec BoosterPack and the F5529 LaunchPad. This was done for two reasons:
+- Directly map the data bit positions of the Kentec controller interface to the MSP port bit positions. This allows simplification of the library code to allow even faster screen refresh rates.
+- Move the Kentec pins to the inner BOOSTXL header pins (J3 and J4), so that the standard BoosterPack I/O pins are available for other devices (e.g. SPI and I2C pins).
+
+Details on the board design can be found in the [Hardware][11] folder.
+
+The library has been modified to support the interface board. When using the library with the interface, the only code change needed is in the constructor to let the library know that the interface board is connected. By default, the TOUCH functionality is not connected when using the interface board:
+
+    Screen_K35_Parallel myScreen(Screen_K35_Parallel::F5529_INTERFACE_BOARD_INSTALLED, Screen_K35_Parallel::TOUCH_DISABLED);
+
+If, however, you connect the TOUCH sensor pins (XP->P2, YP->P6, XN->P12, YN->P11), then use the following constructor:
+
+    Screen_K35_Parallel myScreen(Screen_K35_Parallel::F5529_INTERFACE_BOARD_INSTALLED, Screen_K35_Parallel::TOUCH_ENABLED);
+
+
 References
 ----------
 + EB-LM4F120-L35 BoosterPack [product page][4]
@@ -66,3 +83,4 @@ References
 [8]: https://embeddedcomputing.weebly.com/lcd_screen-library-suite.html
 [9]: http://www.ti.com/tool/MSP-EXP430F5529LP
 [10]: http://www.ti.com/tool/MSP-EXP432P401R
+[11]: ./Hardware

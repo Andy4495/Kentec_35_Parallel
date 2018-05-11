@@ -9,6 +9,7 @@
 // Modfied by Andy4495 for use with Kentec EB-LM4F120-L35 BoosterPack with parallel interface
 //
 // 1.0.0 - 04/08/2018 - Andy4495 - Initial release.
+// 1.1.0 - 05/09/2018 - Andy4495 - Add support for custom F5529 interface board.
 //
 // https://gitlab.com/Andy4495/Kentec_35_Parallel
 // This version continues to be licensed under CC BY-NC-SA 3.0 for hobbyist and personal usage.
@@ -57,7 +58,8 @@ public:
     ///
     /// @note	Default pins for BoosterPack on LaunchPad
     ///
-    Screen_K35_Parallel();
+    Screen_K35_Parallel(uint8_t interface_board = F5529_INTERFACE_BOARD_NOT_INSTALLED,
+                        uint8_t touch_feature = TOUCH_DISABLED);
 
     ///
     /// @brief      Initialise
@@ -67,9 +69,13 @@ public:
 
     ///
     /// @brief	Request information about the screen
-    /// @return	string with hardware version
+    /// @return	String with hardware version
     ///
     String WhoAmI();
+
+    enum {F5529_INTERFACE_BOARD_NOT_INSTALLED = 0, F5529_INTERFACE_BOARD_INSTALLED = 1, TOUCH_ENABLED = 2, TOUCH_DISABLED = 3};
+
+    uint8_t TOUCH_XP, TOUCH_YP, TOUCH_XN, TOUCH_YN;
 
 private:
 	// * Virtual =0 compulsory functions
@@ -113,6 +119,8 @@ private:
     volatile uint8_t *out1;
     volatile uint8_t *out6;
     volatile uint8_t *out4;
+    uint8_t interface_board_installed; // Indicates when using customer F5529 interface board.
+    uint8_t _touch_feature;             // Indicates whether to calibrate touch functionality in begin() method.
 #endif
 
 };
