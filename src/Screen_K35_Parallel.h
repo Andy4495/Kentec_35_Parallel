@@ -113,6 +113,7 @@ private:
 
     uint8_t _pinScreenDataCommand, _pinScreenReset, _pinScreenChipSelect, _pinScreenBackLight, _pinScreenWR, _pinScreenRD;
     uint8_t _pinScreenD0, _pinScreenD1, _pinScreenD2, _pinScreenD3, _pinScreenD4, _pinScreenD5, _pinScreenD6, _pinScreenD7;
+    uint8_t _touch_feature;             // Indicates whether to calibrate touch functionality in begin() method.
 #if defined(__MSP430F5529__)
     volatile uint8_t *out3;
     volatile uint8_t *out2;
@@ -120,7 +121,6 @@ private:
     volatile uint8_t *out6;
     volatile uint8_t *out4;
     uint8_t interface_board_installed; // Indicates when using customer F5529 interface board.
-    uint8_t _touch_feature;             // Indicates whether to calibrate touch functionality in begin() method.
 #endif
 
 };
