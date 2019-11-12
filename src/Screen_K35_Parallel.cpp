@@ -11,9 +11,9 @@
 // 1.0.0 - 04/08/2018 - Andy4495 - Initial release.
 // 1.1.0 - 05/09/2018 - Andy4495 - Add support for custom F5529 interface board.
 //
-// https://gitlab.com/Andy4495/Kentec_35_Parallel
+// https://github.com/Andy4495/Kentec_35_Parallel
 // This version continues to be licensed under CC BY-NC-SA 3.0 for hobbyist and personal usage.
-// See LICENSE file at above GitLab repository
+// See LICENSE file at above github repository
 //
 //
 
