@@ -53,7 +53,7 @@ I created a custom interface board to change the mapping of the pins between the
 - Directly map the data bit positions of the Kentec controller interface to the MSP port bit positions. This allows simplification of the library code to allow even faster screen refresh rates.
 - Move the Kentec pins to the inner BOOSTXL header pins (J3 and J4), so that the standard BoosterPack I/O pins are available for other devices (e.g. SPI and I2C pins).
 
-Details on the board design can be found in the [Hardware][11] folder.
+Details on the board design can be found in the [extras/Hardware][11] folder.
 
 The library has been modified to support the interface board. When using the library with the interface, the only code change needed is in the constructor to let the library know that the interface board is connected. By default, the TOUCH functionality is not connected when using the interface board:
 
@@ -83,4 +83,4 @@ References
 [8]: https://embeddedcomputing.weebly.com/lcd_screen-library-suite.html
 [9]: http://www.ti.com/tool/MSP-EXP430F5529LP
 [10]: http://www.ti.com/tool/MSP-EXP432P401R
-[11]: ./Hardware
+[11]: ./extras/Hardware
