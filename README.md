@@ -1,5 +1,6 @@
 Kentec EB-LM4F120-L35 BoosterPack Library
 =============================================================================
+https://github.com/Andy4495/Kentec_35_Parallel
 
 This Energia library supports the Kentec [EB-LM4F120-L35][4] 3.5" QVGA TFT LCD BoosterPack with Parallel I/O.
 
