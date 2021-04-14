@@ -73,6 +73,10 @@ References
 + Kentec_35_SPI library suite [description][8] and [source][6].
 + BOOSTXL-K350QVG-S1 (SPI) [product page][7]
 
+License
+-------
+The software and other files in this repository are released under the Creative Commons License [CC BY-NC-SA 3.0][100]. See the file [`LICENSE`][101] in this repository.
+
 [1]: http://www.kentecdisplay.com/uploads/soft/Products_spec/EB-LM4F120-L35_UserGuide_04.pdf
 [2]: http://www.kentecdisplay.com/uploads/soft/Datasheet/SSD2119_1.4.pdf
 [3]: https://embeddedcomputing.weebly.com/kentec-35-lcd-with-touch-boosterpack-for-stellaris.html
@@ -84,3 +88,5 @@ References
 [9]: http://www.ti.com/tool/MSP-EXP430F5529LP
 [10]: http://www.ti.com/tool/MSP-EXP432P401R
 [11]: ./extras/Hardware
+[100]: https://creativecommons.org/licenses/by-nc-sa/3.0/
+[101]: ./LICENSE
