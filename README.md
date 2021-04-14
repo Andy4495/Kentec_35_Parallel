@@ -76,7 +76,9 @@ References
 
 License
 -------
-The software and other files in this repository are released under the Creative Commons License [CC BY-NC-SA 3.0][100]. See the file [`LICENSE`][101] in this repository.
+Some files in this repository are based off of code by Rei VILO, embedXcode.weebly.com (https://github.com/energia/msp430-lg-core/tree/master/libraries/Kentec_35_SPI), and licensed for hobbyist and personal use per [CC BY-NC-SA 3.0][100]. 
+
+New and modified software and other files in this repository are Copyright [Andreas Taylor][102] and are released under the Creative Commons License [CC BY-NC-SA 3.0][100]. See the file [`LICENSE`][101] in this repository.
 
 [1]: http://www.kentecdisplay.com/uploads/soft/Products_spec/EB-LM4F120-L35_UserGuide_04.pdf
 [2]: http://www.kentecdisplay.com/uploads/soft/Datasheet/SSD2119_1.4.pdf
@@ -91,3 +93,4 @@ The software and other files in this repository are released under the Creative 
 [11]: ./extras/Hardware
 [100]: https://creativecommons.org/licenses/by-nc-sa/3.0/
 [101]: ./LICENSE
+[102]: https://github.com/Andy4495
