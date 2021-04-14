@@ -1,4 +1,9 @@
-Copyright (c) 2018 Andreas Taylor
+Screen_K35_Parallel.h and Screen_K35_Parallel.cpp based on code by Rei VILO, Jun 29, 2013 embedXcode.weebly.com
+     https://github.com/energia/msp430-lg-core/tree/master/libraries/Kentec_35_SPI
+     Per the ReadMe.txt on the GitHub link above, original version is licensed for hobbyist and personal usage under CC BY-NC-SA 3.0
+     Contact the author above for other uses
+
+New and modified code and other files Copyright (c) 2018 Andreas Taylor
 
 This work is licensed under the Creative Commons
 Attribution-NonCommercial-ShareAlike 3.0 Unported License.
