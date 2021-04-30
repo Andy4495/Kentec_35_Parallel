@@ -1,11 +1,9 @@
 Kentec EB-LM4F120-L35 BoosterPack Library
 =============================================================================
-https://github.com/Andy4495/Kentec_35_Parallel
 
 This Energia library supports the Kentec [EB-LM4F120-L35][4] 3.5" QVGA TFT LCD BoosterPack with Parallel I/O.
 
-The EB-LM4F120-L35 uses the same display and controller chip as the SPI-based
-[BOOSTXL-K350QVG-S1][5] BoosterPack <reference>.
+The EB-LM4F120-L35 uses the same display and controller chip as the SPI-based [BOOSTXL-K350QVG-S1][5] BoosterPack.
 
 The parallel I/O of the LM4F120 version of the BoosterPack allows faster screen drawing with the disadvantage of requiring more I/O pins. Although the name implies that it was designed for the Stellaris ARM-based LaunchPad, it will work with MSP430-based LaunchPads that have the 40-pin BOOSTXL interface and enough RAM to support using a large display.
 
@@ -36,6 +34,7 @@ The Kentec_35_Parallel library and example sketch should now be available in Ene
 
 Usage
 -----
+
 _See the sketch included in the `examples` folder._ This example is from the original Kentec_35_SPI library. It will work with the Parallel version of the library by adding the following lines in the `Screen Selection`:
 
     #define K35_PARALLEL // EB-LM4F120-L35
@@ -50,7 +49,9 @@ Otherwise, the parallel library works the same as the built-in SPI version of th
 
 Specialized Interface Board
 ---------------------------
+
 I created a custom interface board to change the mapping of the pins between the Kentec BoosterPack and the F5529 LaunchPad. This was done for two reasons:
+
 - Directly map the data bit positions of the Kentec controller interface to the MSP port bit positions. This allows simplification of the library code to allow even faster screen refresh rates.
 - Move the Kentec pins to the inner BOOSTXL header pins (J3 and J4), so that the standard BoosterPack I/O pins are available for other devices (e.g. SPI and I2C pins).
 
@@ -64,21 +65,22 @@ If, however, you connect the TOUCH sensor pins (XP->P2, YP->P6, XN->P12, YN->P11
 
     Screen_K35_Parallel myScreen(Screen_K35_Parallel::F5529_INTERFACE_BOARD_INSTALLED, Screen_K35_Parallel::TOUCH_ENABLED);
 
-
 References
 ----------
-+ EB-LM4F120-L35 BoosterPack [product page][4]
-+ EB-LM4F120-L35 BoosterPack [user guide][1]
-+ SSD2119 driver chip [user guide][2]
-+ [Review][3] of the EB-LM4F120-L35 from Rei Vilo's Embedded Computing site.
-+ Kentec_35_SPI library suite [description][8] and [source][6].
-+ BOOSTXL-K350QVG-S1 (SPI) [product page][7]
+
+- EB-LM4F120-L35 BoosterPack [product page][4]
+- EB-LM4F120-L35 BoosterPack [user guide][1]
+- SSD2119 driver chip [user guide][2]
+- [Review][3] of the EB-LM4F120-L35 from Rei Vilo's Embedded Computing site.
+- Kentec_35_SPI library suite [description][8] and [source][6].
+- BOOSTXL-K350QVG-S1 (SPI) [product page][7]
 
 License
 -------
-Some files in this repository are based off of code by Rei VILO, embedXcode.weebly.com (https://github.com/energia/msp430-lg-core/tree/master/libraries/Kentec_35_SPI), and licensed for hobbyist and personal use per [CC BY-NC-SA 3.0][100]. 
 
-New and modified software and other files in this repository are Copyright [Andreas Taylor][102] and are released under the Creative Commons License [CC BY-NC-SA 3.0][100]. See the file [`LICENSE`][101] in this repository.
+Some files in this repository are based off of code by Rei VILO, <https://embedxcode.weebly.com>, <https://github.com/energia/msp430-lg-core/tree/master/libraries/Kentec_35_SPI>, and licensed for hobbyist and personal use per [CC BY-NC-SA 3.0][100].
+
+New and modified software and other files in this repository are released under the Creative Commons License [CC BY-NC-SA 3.0][100]. See the file [`LICENSE`][101] in this repository.
 
 [1]: http://www.kentecdisplay.com/uploads/soft/Products_spec/EB-LM4F120-L35_UserGuide_04.pdf
 [2]: http://www.kentecdisplay.com/uploads/soft/Datasheet/SSD2119_1.4.pdf
@@ -93,4 +95,4 @@ New and modified software and other files in this repository are Copyright [Andr
 [11]: ./extras/Hardware
 [100]: https://creativecommons.org/licenses/by-nc-sa/3.0/
 [101]: ./LICENSE
-[102]: https://github.com/Andy4495
+[200]: https://github.com/Andy4495/Kentec_35_Parallel
