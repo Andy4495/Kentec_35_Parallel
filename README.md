@@ -1,6 +1,5 @@
 # Kentec EB-LM4F120-L35 BoosterPack Library
 
-[![Arduino Compile Sketches](https://github.com/Andy4495/Kentec_35_Parallel/actions/workflows/arduino-compile-sketches.yml/badge.svg)](https://github.com/Andy4495/Kentec_35_Parallel/actions/workflows/arduino-compile-sketches.yml)
 [![Check Markdown Links](https://github.com/Andy4495/Kentec_35_Parallel/actions/workflows/CheckMarkdownLinks.yml/badge.svg)](https://github.com/Andy4495/Kentec_35_Parallel/actions/workflows/CheckMarkdownLinks.yml)
 
 This Energia library supports the Kentec [EB-LM4F120-L35][4] 3.5" QVGA TFT LCD BoosterPack with Parallel I/O.
