@@ -14,37 +14,11 @@ This library is based on the [Kentec_35_SPI library][8] which is included with E
 
 The screen touch functionality was carried over from the SPI version of the library and the I/O pin number definitions were updated accordingly. However, touch functionality has not been tested with this library.
 
-## Installing
-
-The files included with this library require the other components of the Kentec_35_SPI library. However, due to issues with the way that Energia manages libraries, adding support of the parallel version of the display is more complicated than just adding the new files to the existing library.
-
-First, __download__ and unzip this library and install it in your local sketchbook library directory (typically ~/Energia/libraries). Name the new folder `Kentec_35_Parallel`.
-
-Next, __copy__ the \*.cpp files and \*.h files of the Kentec_35_SPI directory from your local Energia installation (typically at ~/<energia_directory>/hardware/energia/msp430/libraries/Kentec_35_SPI) to the `Kentec_35_Parallel/src` directory that you created above.
-
-Next, __copy__ the `examples` directory to the `Kentec_35_Parallel` directory.
-
-Next, __copy__ the `ReadMe.txt` and `LCD_screen - Reference Manual.pdf` files to the `Kentec_35_Parallel` directory.
-
-Next, __delete__ the files `Kentec_35_SPI.h` and `Kentec_35_SPI.cpp` from the `Kentec_35_Parallel\src` directory.
-
-Quit and re-start Energia.
-
-The Kentec_35_Parallel library and example sketch should now be available in Energia.
-
 ## Usage
 
-_See the sketch included in the `examples` folder._ This example is from the original Kentec_35_SPI library. It will work with the Parallel version of the library by adding the following lines in the `Screen Selection`:
+See the sketch included in the `examples` folder.
 
-    #define K35_PARALLEL // EB-LM4F120-L35
-
-and after the other screen definition pre-processor directives:
-
-    #elif defined(K35_PARALLEL)
-    #include "Screen_K35_Parallel.h"
-    Screen_K35_Parallel myScreen;
-
-Otherwise, the parallel library works the same as the built-in SPI version of the library.
+The parallel library works the same as the built-in SPI version of the library. See the [Reference Manual][12] included with the library.
 
 ## Specialized Interface Board
 
@@ -74,9 +48,9 @@ If, however, you connect the TOUCH sensor pins (XP->P2, YP->P6, XN->P12, YN->P11
 
 ## License
 
-Some files in this repository are based off of code by Rei VILO, <https://embedxcode.weebly.com>, <https://github.com/energia/msp430-lg-core/tree/master/libraries/Kentec_35_SPI>, and licensed for hobbyist and personal use per [CC BY-NC-SA 3.0][100].
+This library is based off of code by Rei VILO, <https://embedxcode.weebly.com>, <https://github.com/energia/msp430-lg-core/tree/master/libraries/Kentec_35_SPI>.
 
-New and modified software and other files in this repository are released under the Creative Commons License [CC BY-NC-SA 3.0][100]. See the file [`LICENSE`][101] in this repository.
+The software and other files in this repository are licensed for hobbyist and personal use under the Creative Commons License [CC BY-NC-SA 3.0][100]. See the file [`LICENSE`][101] in this repository.
 
 [1]: http://www.kentecdisplay.com/uploads/soft/Products_spec/EB-LM4F120-L35_UserGuide_04.pdf
 [2]: http://www.kentecdisplay.com/uploads/soft/Datasheet/SSD2119_1.4.pdf
@@ -89,6 +63,7 @@ New and modified software and other files in this repository are released under 
 [9]: http://www.ti.com/tool/MSP-EXP430F5529LP
 [10]: http://www.ti.com/tool/MSP-EXP432P401R
 [11]: ./extras/Hardware
+[12]: ./extras/LCD_screen-ReferenceManual.pdf
 [100]: https://creativecommons.org/licenses/by-nc-sa/3.0/
 [101]: ./LICENSE
 [200]: https://github.com/Andy4495/Kentec_35_Parallel

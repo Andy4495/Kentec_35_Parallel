@@ -10,6 +10,7 @@
 //
 // 1.0.0 - 04/08/2018 - Andy4495 - Initial release.
 // 1.1.0 - 05/09/2018 - Andy4495 - Add support for custom F5529 interface board.
+// 2.0.0 - 06/23/2022 - Andy4495 - Comment out call to _getRawTouch()
 //
 // https://github.com/Andy4495/Kentec_35_Parallel
 // This version continues to be licensed under CC BY-NC-SA 3.0 for hobbyist and personal usage.
@@ -324,13 +325,14 @@ void Screen_K35_Parallel::begin()
 
     // Touch
     // The call to _getRawTouch() caused the code to hang when compied with MSP432
-    // The interface board does not directly connect the TOUCH pins to LaunchPad
-#ifndef __MSP432P401R__
+    // The SPI version of the board also sometimes hangs on this call
+    // Therefore, comment out the code for now
+/*
     if (_touch_feature == TOUCH_ENABLED) {
       uint16_t x0, y0, z0;
       _getRawTouch(x0, y0, z0);
     }
-#endif
+*/
 
     // Touch calibration
     _touchTrim = TOUCH_TRIM;
