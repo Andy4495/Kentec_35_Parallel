@@ -3,13 +3,13 @@
 [![Arduino Compile Sketches](https://github.com/Andy4495/Kentec_35_Parallel/actions/workflows/arduino-compile-sketches.yml/badge.svg)](https://github.com/Andy4495/Kentec_35_Parallel/actions/workflows/arduino-compile-sketches.yml)
 [![Check Markdown Links](https://github.com/Andy4495/Kentec_35_Parallel/actions/workflows/CheckMarkdownLinks.yml/badge.svg)](https://github.com/Andy4495/Kentec_35_Parallel/actions/workflows/CheckMarkdownLinks.yml)
 
-This Energia library supports the Kentec [EB-LM4F120-L35][4] 3.5" QVGA TFT LCD BoosterPack with Parallel I/O.
+This library supports the Kentec [EB-LM4F120-L35][4] 3.5" QVGA TFT LCD BoosterPack with Parallel I/O.
 
 The EB-LM4F120-L35 uses the same display and controller chip as the SPI-based [BOOSTXL-K350QVG-S1][5] BoosterPack.
 
 The parallel I/O of the LM4F120 version of the BoosterPack allows faster screen drawing with the disadvantage of requiring more I/O pins. Although the name implies that it was designed for the Stellaris ARM-based LaunchPad, it will work with MSP430-based LaunchPads that have the 40-pin BOOSTXL interface and enough RAM to support using a large display.
 
-This library is optimized for use with the [MSP430F5529][9] and [MSP432P401R][10] LaunchPads, but will also work with any other Energia-supported LaunchPad with the BOOSTXL interface. Display refresh rates on boards other than the F5529 or MSP432 will be much slower due to the use of the generic `DigitalWrite()` for I/O control. When used with the F5529 or MSP432, the library uses a much faster direct register control for I/O.
+This library is optimized for use with the [MSP430F5529][9] and [MSP432P401R][10] LaunchPads, but will also work with any other MSP or Tiva LaunchPad with the BOOSTXL interface. Display refresh rates on boards other than the F5529 or MSP432 will be much slower due to the use of the generic `DigitalWrite()` for I/O control. When used with the F5529 or MSP432, the library uses a much faster direct register control for I/O.
 
 This library is based on the [Kentec_35_SPI library][8] which is included with Energia.
 
