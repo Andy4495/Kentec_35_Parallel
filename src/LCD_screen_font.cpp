@@ -22,15 +22,18 @@ LCD_screen_font::LCD_screen_font()
 {
     ;
 }
+
 void LCD_screen_font::setFontSize(uint8_t size)
 {
     if (size < MAX_FONT_SIZE) _fontSize = size;
     else _fontSize = MAX_FONT_SIZE -1;
 }
+
 uint8_t LCD_screen_font::fontMax()
 {
     return MAX_FONT_SIZE;
 }
+
 uint8_t LCD_screen_font::fontSizeX()
 {
 #if (MAX_FONT_SIZE > 0)
@@ -47,6 +50,7 @@ uint8_t LCD_screen_font::fontSizeX()
 #endif
     else return 0;
 }
+
 uint8_t LCD_screen_font::fontSizeY()
 {
 #if (MAX_FONT_SIZE > 0)
@@ -63,8 +67,8 @@ uint8_t LCD_screen_font::fontSizeY()
 #endif
     else return 0;
 }
+
 uint8_t LCD_screen_font::_getCharacter(uint8_t c, uint8_t i) {
-#if defined(ENERGIA)
 #if (MAX_FONT_SIZE > 0)
     if (_fontSize == 0) return Terminal6x8e[c][i];
 #if (MAX_FONT_SIZE > 1)
@@ -77,8 +81,6 @@ uint8_t LCD_screen_font::_getCharacter(uint8_t c, uint8_t i) {
 #endif
 #endif
 #endif
-    else return 0;
-#else
 #if (MAX_FONT_SIZE > 0)
     if (_fontSize == 0) return pgm_read_byte(&Terminal6x8e[c][i]);
 #if (MAX_FONT_SIZE > 1)
@@ -91,9 +93,8 @@ uint8_t LCD_screen_font::_getCharacter(uint8_t c, uint8_t i) {
 #endif
 #endif
 #endif
-    else return 0;
-#endif
 }
+
 void LCD_screen_font::gText(uint16_t x0, uint16_t y0,
                             String s,
                             uint16_t textColour, uint16_t backColour,

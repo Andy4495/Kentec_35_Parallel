@@ -968,10 +968,7 @@ void Screen_K35_Parallel::_getRawTouch(uint16_t &x0, uint16_t &y0, uint16_t &z0)
         // xn = ground
         // yp = measure
         // yn = open
-#ifndef ENERGIA
-        digitalWrite(TOUCH_YP, LOW);
-        digitalWrite(TOUCH_YN, LOW);
-#endif
+
         pinMode(TOUCH_YP, INPUT);
         pinMode(TOUCH_YN, INPUT);
 
@@ -993,10 +990,7 @@ void Screen_K35_Parallel::_getRawTouch(uint16_t &x0, uint16_t &y0, uint16_t &z0)
         // xn = open
         // yp = +Vref
         // yn = ground
-#ifndef ENERGIA
-        digitalWrite(TOUCH_XP, LOW);
-        digitalWrite(TOUCH_XN, LOW);
-#endif
+
         pinMode(TOUCH_XP, INPUT);
         pinMode(TOUCH_XN, INPUT);
 
@@ -1023,10 +1017,6 @@ void Screen_K35_Parallel::_getRawTouch(uint16_t &x0, uint16_t &y0, uint16_t &z0)
         digitalWrite(TOUCH_XP, LOW);
         digitalWrite(TOUCH_YN, HIGH);
 
-#ifndef ENERGIA
-        digitalWrite(TOUCH_XN, LOW);
-        digitalWrite(TOUCH_YP, LOW);
-#endif
         pinMode(TOUCH_XN, INPUT);
         pinMode(TOUCH_YP, INPUT);
 

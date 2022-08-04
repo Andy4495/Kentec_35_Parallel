@@ -22,23 +22,9 @@
 /// @n  For any enquiry about license, http://embeddedcomputing.weebly.com/contact
 ///
 /// @seeReadMe.txt for references
-#if defined(MPIDE)
-#include "WProgram.h"
-#elif defined(DIGISPARK)
-#include "Arduino.h"
-#elif defined(ENERGIA)
+
 #include "Energia.h"
-#elif defined(MAPLE_IDE)
-#include "WProgram.h"
-#elif defined(CORE_TEENSY)
-#include "WProgram.h"
-#elif defined(WIRING)
-#include "Wiring.h"
-#elif defined(ARDUINO) && (ARDUINO >= 100)
-#include "Arduino.h"
-#elif defined(ARDUINO) && (ARDUINO < 100)
-#include "WProgram.h"
-#endif
+
 #ifndef LCD_UTILITIES_RELEASE
 #define LCD_UTILITIES_RELEASE 102
 int32_t cos32x100(int32_t degreesX100);
