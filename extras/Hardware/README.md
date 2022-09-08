@@ -56,4 +56,4 @@ If, however, you connect the TOUCH sensor pins (XP->P2, YP->P6, XN->P12, YN->P11
 
     Screen_K35_Parallel myScreen(Screen_K35_Parallel::F5529_INTERFACE_BOARD_INSTALLED, Screen_K35_Parallel::TOUCH_ENABLED);
 
-[200]: https://github.com/Andy4495/Kentec_35_Parallel
+[//]: # ([200]: https://github.com/Andy4495/Kentec_35_Parallel)

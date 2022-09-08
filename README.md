@@ -67,4 +67,4 @@ The software and other files in this repository are licensed for hobbyist and pe
 [12]: ./extras/LCD_screen-ReferenceManual.pdf
 [100]: https://creativecommons.org/licenses/by-nc-sa/3.0/
 [101]: ./LICENSE
-[200]: https://github.com/Andy4495/Kentec_35_Parallel
+[//]: # ([200]: https://github.com/Andy4495/Kentec_35_Parallel)
