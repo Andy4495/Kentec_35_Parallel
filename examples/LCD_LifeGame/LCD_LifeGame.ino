@@ -42,42 +42,18 @@
 /// @b  Updated Sep 07, 2015
 /// @n  Support for MSP432 with 128x128
 ///
+// Updated 8/4/2022 by Andy4495 for compatibility with Kentec_35_Parallel library and building with Arduino IDE/CLI
+// https://github.com/Andy4495/Kentec_35_Parallel
+//
 
-// Core library for code-sense
-#if defined(ENERGIA) // LaunchPad MSP430, Stellaris and Tiva, Experimeter Board FR5739 specific
 #include "Energia.h"
-#else // error
-#error Platform not defined
-#endif
-
-// Prototypes
-
-
-// Include application, user and local libraries
-#include "SPI.h"
-
-// test: PicasoSPE PicasoSGC
-// ok: HX8353E W32 HI32 HY28A K35 ST7735 ILI9225B HY28A_SRAM
-// nok:
 
 // Screen selection
 #define K35_PARALLEL // EB-LM4F120-L35
 
-#if defined(K35_SPI)
-#include "Screen_K35_SPI.h"
-Screen_K35_SPI myScreen;
-
-#elif defined(HX8353E)
-#include "Screen_HX8353E.h"
-Screen_HX8353E myScreen;
-
-#elif defined(K35_PARALLEL)
 #include "Screen_K35_Parallel.h"
+//Screen_K35_Parallel myScreen(Screen_K35_Parallel::F5529_INTERFACE_BOARD_INSTALLED, Screen_K35_Parallel::TOUCH_DISABLED);
 Screen_K35_Parallel myScreen;
-
-#else
-#error Unknown screen
-#endif
 
 
 // Beware of RAM limitations
@@ -106,8 +82,10 @@ Screen_K35_Parallel myScreen;
 #define NMASK   0x08
 #define AGEMASK 0x07
 
-#define StopButton 33
-#define NewGameButton 32
+//#define StopButton 28
+//#define NewGameButton 39
+#define StopButton PUSH1
+#define NewGameButton PUSH2
 
 // Define variables and constants
 uint8_t _screen[2][ROWS][COLS];

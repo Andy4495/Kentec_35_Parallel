@@ -27,11 +27,11 @@
 #ifndef TERMINAL8E_FONT_RELEASE
 #define TERMINAL8E_FONT_RELEASE 102
 
-#if defined(ENERGIA)
+//#if defined(ENERGIA)
 static const unsigned char Terminal8x12e[224][16] =
-#elif defined(ARDUINO) || defined(MPIDE) || defined(WIRING)
-static prog_uchar Terminal8x12e[224][16] PROGMEM =
-#endif
+//#elif defined(ARDUINO) || defined(MPIDE) || defined(WIRING)
+//static prog_uchar Terminal8x12e[224][16] PROGMEM =
+//#endif
 {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x1C, 0x00, 0x7E, 0x03, 0x7E, 0x03, 0x1C, 0x00, 0x00, 0x00, 0x00, 0x00,
