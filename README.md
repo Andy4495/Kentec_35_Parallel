@@ -42,7 +42,7 @@ If, however, you connect the TOUCH sensor pins (XP->P2, YP->P6, XN->P12, YN->P11
 
 - EB-LM4F120-L35 BoosterPack [product page][4]
 - EB-LM4F120-L35 BoosterPack [user guide][1]
-- SSD2119 driver chip [user guide][2]
+- SSD2119 driver chip [datasheet][2]
 - [Review][3] of the EB-LM4F120-L35 from Rei Vilo's Embedded Computing site.
 - Kentec_35_SPI library suite [description][8] and [source][6].
 - BOOSTXL-K350QVG-S1 (SPI) [product page][7]
@@ -53,10 +53,10 @@ This library is based off of code by Rei VILO, <https://embedxcode.weebly.com>, 
 
 The software and other files in this repository are licensed for hobbyist and personal use under the Creative Commons License [CC BY-NC-SA 3.0][100]. See the file [`LICENSE`][101] in this repository.
 
-[1]: http://www.kentecdisplay.com/uploads/soft/Products_spec/EB-LM4F120-L35_UserGuide_04.pdf
-[2]: http://www.kentecdisplay.com/uploads/soft/Datasheet/SSD2119_1.4.pdf
+[1]: ./extras/Kentec%20Parallel%20LCD%20EB-LM4F120-L35_UserGuide_04.pdf
+[2]: https://support.newhavendisplay.com/hc/en-us/article_attachments/4414860088727
 [3]: https://embeddedcomputing.weebly.com/kentec-35-lcd-with-touch-boosterpack-for-stellaris.html
-[4]: http://www.kentecdisplay.com/plus/view.php?aid=71
+[4]: https://www.newark.com/kentec-display/eb-lm4f120-l35/exp-board-lcd-boosterpack-stellaris/dp/48W2063
 [5]: http://www.ti.com/tool/BOOSTXL-K350QVG-S1
 [6]: https://github.com/energia/msp430-lg-core/tree/master/libraries/Kentec_35_SPI
 [7]: http://www.ti.com/tool/BOOSTXL-K350QVG-S1
@@ -68,3 +68,6 @@ The software and other files in this repository are licensed for hobbyist and pe
 [100]: https://creativecommons.org/licenses/by-nc-sa/3.0/
 [101]: ./LICENSE
 [//]: # ([200]: https://github.com/Andy4495/Kentec_35_Parallel)
+[//]: # ( http://www.kentecdisplay.com/uploads/soft/Products_spec/EB-LM4F120-L35_UserGuide_04.pdf )
+[//]: # ( http://www.kentecdisplay.com/uploads/soft/Datasheet/SSD2119_1.4.pdf )
+[//]: # ( http://www.kentecdisplay.com/plus/view.php?aid=71 )
